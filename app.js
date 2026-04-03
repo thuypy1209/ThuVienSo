@@ -1,0 +1,77 @@
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+
+// --- 1. THÊM THƯ VIỆN MONGOOSE VÀ KẾT NỐI DATABASE TẠI ĐÂY ---
+var mongoose = require('mongoose');
+
+// Kết nối tới MongoDB (Database tên là: thuvienso)
+mongoose.connect('mongodb://127.0.0.1:27017/thuvienso')
+  .then(() => {
+    console.log("✅ Đã kết nối thành công với MongoDB (Database: thuvienso)!");
+  })
+  .catch((err) => {
+    console.log("❌ Lỗi kết nối MongoDB. Bạn đã mở MongoDB Compass chưa?");
+    console.log("Chi tiết lỗi:", err);
+  });
+// -------------------------------------------------------------
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var categoriesRouter = require('./routes/categories');
+var booksRouter = require('./routes/books');
+var authorsRouter = require('./routes/authors');
+var publishersRouter = require('./routes/publishers');
+var authRouter = require('./routes/auth');
+var uploadRouter = require('./routes/upload');
+var reviewsRouter = require('./routes/reviews');
+var borrowRecordsRouter = require('./routes/borrowRecords');
+var ebookFilesRouter = require('./routes/ebookFiles');
+
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Đăng ký các đường dẫn (Routes)
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/categories', categoriesRouter);
+app.use('/books', booksRouter);
+app.use('/authors', authorsRouter);
+app.use('/publishers', publishersRouter);
+app.use('/auth', authRouter);
+app.use('/upload', uploadRouter);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/reviews', reviewsRouter);
+app.use('/borrow-records', borrowRecordsRouter);
+app.use('/ebook-files', ebookFilesRouter);
+
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+console.log("Server Node.js đang chuẩn bị khởi động...");
+module.exports = app;
