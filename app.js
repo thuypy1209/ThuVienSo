@@ -29,6 +29,11 @@ var uploadRouter = require('./routes/upload');
 var reviewsRouter = require('./routes/reviews');
 var borrowRecordsRouter = require('./routes/borrowRecords');
 var ebookFilesRouter = require('./routes/ebookFiles');
+var cors = require('cors');
+var wishlistsRouter = require('./routes/wishlists');
+var notificationsRouter = require('./routes/notifications');
+var cartsRouter = require('./routes/carts');
+var messagesRouter = require('./routes/messages');
 
 var app = express();
 
@@ -41,6 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
 
 // Đăng ký các đường dẫn (Routes)
 app.use('/', indexRouter);
@@ -55,6 +61,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/reviews', reviewsRouter);
 app.use('/borrow-records', borrowRecordsRouter);
 app.use('/ebook-files', ebookFilesRouter);
+app.use('/wishlists', wishlistsRouter);
+app.use('/notifications', notificationsRouter);
+app.use('/carts', cartsRouter);
+app.use('/messages', messagesRouter);
 
 
 // catch 404 and forward to error handler
