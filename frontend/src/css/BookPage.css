@@ -1,0 +1,611 @@
+/* src/css/BookPage.css */
+
+.book-page-container {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+/* --- BANNER ẢNH THƯ VIỆN (Đã sửa đường dẫn chuẩn) --- */
+.book-banner {
+  padding: 20px 20px 40px;
+  color: white;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  margin-bottom: 20px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Thanh tìm kiếm bự */
+.search-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 2px 2px 2px 15px;
+}
+
+.search-wrapper input {
+  flex: 1;
+  border: none;
+  padding: 12px 10px;
+  font-size: 15px;
+  outline: none;
+  color: #333;
+}
+
+.filter-btn-text {
+  color: #666;
+  background: none;
+  border: none;
+  border-left: 1px solid #ddd;
+  padding: 0 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-btn-icon {
+  background-color: #5c7cfa; /* Màu xanh nhạt của nút kính lúp */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Dãy 4 Ô Dropdown lọc */
+.dropdown-filters {
+  max-width: 800px;
+  margin: 15px auto 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.select-container {
+  flex: 1;
+  display: flex;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  color: #555;
+  outline: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.clear-select-btn {
+  background: none;
+  border: none;
+  border-left: 1px solid #eee;
+  padding: 0 10px;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.clear-select-btn:hover { color: red; }
+
+/* --- CÁC NÚT PHÂN LOẠI NHANH --- */
+.quick-tags-section {
+  max-width: 1000px;
+  margin: 20px auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.quick-tag {
+  background-color: #4a69bd;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* --- VÙNG HIỂN THỊ SÁCH --- */
+.books-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+
+.content-header h2 { color: #333; margin: 0; font-size: 22px; }
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 25px;
+}
+
+.book-card-item {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.3s;
+  cursor: pointer;
+  border: 1px solid #eee;
+  position: relative; /* Để chứa nút tim */
+}
+
+.book-card-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.book-cover-large {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
+.book-details { padding: 12px; }
+.book-details h3 { font-size: 15px; color: #333; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.book-details p { color: #777; font-size: 13px; margin: 0; }
+
+.btn-read {
+  margin-top: 15px; width: 100%; padding: 10px;
+  background-color: #28a745; color: white;
+  border: none; border-radius: 5px; cursor: pointer;
+}
+
+/* NÚT TIM TRÒN BÊN PHẢI NHƯ HÌNH 2 */
+.heart-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================
+   PHẦN MỚI: ẤN PHẨM ĐÃ XEM (DƯỚI CÙNG TRANG)
+========================================= */
+.recent-books-section {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.recent-books-row {
+  display: flex;
+  overflow-x: auto; /* Tạo thanh cuộn ngang nếu nhiều sách */
+  gap: 20px;
+  padding-bottom: 15px; /* Để tránh thanh scroll đè lên card */
+  scroll-behavior: smooth;
+}
+
+/* Ẩn thanh scroll cho đẹp (Tùy chọn) */
+.recent-books-row::-webkit-scrollbar {
+  height: 8px;
+}
+.recent-books-row::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.recent-book-card {
+  flex: 0 0 200px; /* Chiều rộng cố định cho mỗi thẻ sách */
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.recent-book-cover {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+.recent-book-info {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.recent-book-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Tên dài bị cắt thành ... */
+}
+
+.recent-author {
+  font-size: 12px;
+  color: #777;
+  margin: 0 0 10px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-book-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.rating { color: #f39c12; } /* Màu vàng cam cho sao */
+.views { color: #666; }
+
+/* =========================================
+   PHẦN MỚI: CHÂN TRANG (FOOTER) - BẢN NÂNG CẤP
+========================================= */
+.site-footer {
+  background-color: #ffffff; /* Nền trắng tinh để nổi bật trên nền xám của trang */
+  
+  /* 1. ĐÂY LÀ THANH NGĂN CÁCH NÍ CẦN NÈ: Dày 3px, màu xám nhạt */
+  border-top: 3px solid #e0e6ed; 
+  
+  /* 2. Thêm chút bóng đổ hắt lên trên để tách biệt hoàn toàn */
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.03); 
+  
+  margin-top: 50px;
+  padding-top: 40px;
+  font-family: Arial, sans-serif;
+  width: 100%;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px 30px;
+  gap: 30px;
+}
+
+.footer-col {
+  flex: 1;
+  text-align: left; /* Ép chữ căn trái cho gọn gàng giống hình 1 */
+}
+
+.footer-logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #003399; /* Chữ HUTECH màu xanh đậm */
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-col p {
+  margin: 12px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #555; /* Màu chữ xám đen cho dịu mắt */
+  font-weight: 500;
+}
+
+/* Hiệu ứng rê chuột cho cột liên kết */
+.links-col p {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.links-col p:hover {
+  color: #003399; /* Đổi thành xanh khi lia chuột vào */
+  transform: translateX(5px);
+}
+
+/* Thanh bản quyền dưới cùng */
+.footer-bottom {
+  background-color: #f8f9fa;
+  padding: 15px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #ddd;
+}
+
+.copyright {
+  font-size: 13px;
+  color: #888;
+}
+
+/* Nút trượt lên đầu trang (Back to top) */
+.back-to-top {
+  background-color: #e0e6ed;
+  color: #555;
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.back-to-top:hover {
+  background-color: #003399;
+  color: white;
+}
+/* --- CHỈNH DÁNG CHO PHẦN ĐÁNH GIÁ SAO Ở ẤN PHẨM CHÍNH --- */
+.book-stats {
+  display: flex;
+  justify-content: space-between; /* Đẩy 2 cục ra 2 mép */
+  margin-bottom: 12px; /* Cách cái nút Đọc Ngay một chút */
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.book-stats .rating { 
+  color: #f39c12; /* Màu vàng cam cho sao */
+}
+
+.book-stats .views { 
+  color: #666;    /* Màu xám cho lượt xem */
+}
+
+/* --- HIỆU ỨNG CHẤM SAO TƯƠNG TÁC --- */
+.interactive-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-icon {
+  font-size: 16px;
+  color: #dcdcdc; /* Màu xám nhạt khi chưa có sao */
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.star-icon.filled {
+  color: #f39c12; /* Màu vàng cam rực rỡ khi sách có sao */
+}
+
+/* Hiệu ứng phóng to và đổi màu khi rê chuột vào để đánh giá */
+.star-icon:hover {
+  transform: scale(1.3); 
+  color: #ffc107;
+}
+
+.rating-number {
+  font-size: 12px;
+  color: #666;
+  margin-left: 5px;
+  font-weight: normal;
+}
+
+/* =========================================
+   GIAO DIỆN KHÔNG TÌM THẤY SÁCH (NOT FOUND)
+========================================= */
+.empty-state-container {
+  grid-column: 1 / -1; /* Ép nó chiếm trọn chiều ngang của màn hình */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: transparent;
+}
+
+/* Chỉnh lại cái icon to bự ở giữa */
+.empty-state-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.empty-state-container h3 {
+  color: #1a1a1a;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.empty-state-hints {
+  text-align: left;
+  color: #555;
+  font-size: 14px;
+}
+
+.empty-state-hints p {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.empty-state-hints ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 0;
+  color: #666;
+}
+
+.empty-state-hints li {
+  margin-bottom: 8px;
+}
+
+/* Nút xóa bộ lọc tôi bonus thêm cho ní */
+.btn-reset-filter {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background-color: #6b5cd1;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-reset-filter:hover {
+  background-color: #3b398c;
+}
+
+/* --- TEM VIP GẮN TRÊN GÓC SÁCH --- */
+.book-card-item {
+  position: relative; /* Đảm bảo thẻ cha có position relative */
+}
+
+.vip-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(45deg, #f1c40f, #f39c12);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 2;
+  border: 1px solid #d4af37;
+}
+
+/* --- POPUP THANH TOÁN MOMO --- */
+.momo-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.momo-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border-top: 5px solid #a50064; /* Màu hồng Momo */
+}
+
+.qr-container {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
+
+.qr-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+}
+
+.momo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-mock-success {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-mock-success:hover { background: #218838; }
+
+.btn-cancel {
+  background: transparent;
+  color: #888;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-cancel:hover { color: #dc3545; }
+/* Ép màu nền sáng cho các ô tìm kiếm và bộ lọc */
+input[type="text"],
+select {
+    background-color: #ffffff !important; /* Nền trắng */
+    color: #333333 !important;            /* Chữ màu xám đậm/đen */
+    border: 1px solid #e0e0e0 !important; /* Viền xám nhạt cho tinh tế */
+    padding: 10px 15px;
+    border-radius: 4px;
+}
+
+/* Đổi màu chữ mờ (placeholder) bên trong thanh tìm kiếm cho dễ đọc */
+input::placeholder {
+    color: #888888 !important;
+}
+
+/* Khi click chuột vào ô tìm kiếm thì đổi màu viền chớp chớp cho xịn */
+input:focus, 
+select:focus {
+    outline: none;
+    border-color: #8a2be2 !important; /* Chuyển sang viền màu tím HUTECH */
+    box-shadow: 0 0 5px rgba(138, 43, 226, 0.3) !important;
+}
+
+/* Fix riêng cho mấy cái icon 'x' (nếu ní dùng button để làm nút xóa) */
+.filter-clear-btn {
+    background-color: #ffffff !important;
+    color: #333 !important;
+}

@@ -1,0 +1,333 @@
+/* src/css/ForumPage.css */
+
+.forum-container {
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Banner Diễn Đàn */
+.forum-banner {
+  background: linear-gradient(135deg, #3b5998 0%, #3b5998 100%);
+  padding: 50px 20px;
+  color: white;
+  text-align: center;
+}
+
+.forum-banner h1 {
+  margin: 0 0 10px 0;
+  font-size: 32px;
+}
+
+.forum-banner p {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* Bố cục chính chia 2 cột */
+.forum-content {
+  max-width: 1200px;
+  margin: -30px auto 50px; /* Kéo nội dung chồm lên banner một chút cho đẹp */
+  display: flex;
+  gap: 25px;
+  padding: 0 20px;
+}
+
+/* Cột trái: Danh sách bài viết */
+.forum-main {
+  flex: 3;
+}
+
+.forum-filters {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  gap: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.forum-filters button {
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.forum-filters button.active {
+  color: #004085;
+  border-bottom: 2px solid #004085;
+}
+
+.post-card {
+  background: white;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  gap: 20px;
+  transition: background 0.2s;
+}
+
+.post-card:last-child {
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.post-card:hover {
+  background: #f8f9fa;
+}
+
+/* Cột vote bên trái mỗi bài viết */
+.post-stats-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  color: #666;
+}
+
+.stat-box {
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.stat-box.answers {
+  border: 1px solid #4caf50;
+  color: #4caf50;
+}
+
+.stat-box.answers.accepted {
+  background: #4caf50;
+  color: white;
+}
+
+.stat-num {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 11px;
+}
+
+/* Nội dung bài viết */
+.post-info {
+  flex: 1;
+}
+
+.post-title {
+  font-size: 18px;
+  color: #0056b3;
+  margin: 0 0 8px 0;
+  cursor: pointer;
+}
+
+.post-title:hover {
+  text-decoration: underline;
+}
+
+.post-excerpt {
+  color: #555;
+  font-size: 14px;
+  margin: 0 0 15px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.post-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.tag {
+  background: #e1ecf4;
+  color: #39739d;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.post-author {
+  color: #888;
+}
+
+/* Cột phải: Thanh công cụ (Sidebar) */
+.forum-sidebar {
+  flex: 1;
+}
+
+.btn-create-post {
+  width: 100%;
+  background-color: #004085;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  transition: transform 0.2s;
+}
+
+.btn-create-post:hover {
+  transform: translateY(-2px);
+  background-color: #003366;
+}
+
+.sidebar-widget {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.sidebar-widget h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* =========================================
+   THÊM MỚI: POPUP ĐĂNG BÀI (MODAL)
+   ========================================= */
+
+/* Lớp phủ mờ màu đen phía sau */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px); /* Làm mờ cảnh vật phía sau */
+}
+
+/* Khung cửa sổ trắng */
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  position: relative;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #004085;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: red;
+}
+
+/* Form nhập liệu trong Popup */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #004085;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.btn-cancel {
+  background: #f1f1f1;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+}
+
+.btn-cancel:hover {
+  background: #e1e1e1;
+}
+
+.btn-submit {
+  background: #004085;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-submit:hover {
+  background: #002752;
+}
