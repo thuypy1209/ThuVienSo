@@ -1,0 +1,251 @@
+/* =========================================
+   src/css/VipPage.css
+   GIAO DIỆN CHUYỂN TIỀN MOMO "ĐỘNG" ĐẲNG CẤP
+========================================= */
+
+/* Reset CSS cơ bản cho trang này */
+.momo-payment-screen {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  background-color: #444444; /* Màu xám đậm nền trên cùng */
+  min-height: 100vh;
+}
+
+/* 1. HEADER (Màu xám đậm, tối giản) */
+.momo-header {
+  height: 60px;
+  background-color: #444444;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  color: white;
+  border-bottom: 1px solid #555555;
+}
+
+.momo-back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.momo-header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.momo-header-spacer {
+  width: 24px; /* Giữ tiêu đề ở giữa */
+}
+
+/* 2. NỘI DUNG CHÍNH (Vùng nền màu HỒNG NHẠT MOMO) */
+.momo-content {
+  background-color: #FFF0F5; /* Màu hồng nhạt (Lavender Blush) chuẩn MoMo */
+  padding: 20px;
+  padding-bottom: 120px; /* Chừa chỗ cho action bar ở dưới */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 3. CÁI CARD THANH TOÁN TO MÀU TRẮNG */
+.momo-card {
+  background-color: #FFFFFF;
+  width: 100%;
+  max-width: 500px; /* Giới hạn độ rộng để đẹp trên PC */
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Đổ bóng nhẹ sang trọng */
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+/* A. THÔNG TIN NGƯỜI NHẬN */
+.momo-receiver-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid #F5F5F5;
+}
+
+.momo-avatar-hutech {
+  width: 50px;
+  height: 50px;
+  background-color: #e8f0fe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.momo-receiver-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.momo-receiver-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.momo-receiver-phone {
+  font-size: 14px;
+  color: #888888;
+  margin-top: 2px;
+}
+
+/* B. SỐ TIỀN (TO VÀ NỔI BẬT Y CHANG HÌNH) */
+.momo-amount-section {
+  padding: 25px 20px;
+  text-align: center;
+  border-bottom: 1px solid #F5F5F5;
+}
+
+.momo-amount-label {
+  display: block;
+  font-size: 14px;
+  color: #888888;
+  margin-bottom: 10px;
+}
+
+.momo-amount-value {
+  display: block;
+  font-size: 36px; /* Chữ to đùng nổi bật */
+  font-weight: 800;
+  color: #333333;
+}
+
+/* C. LỜI NHẮN */
+.momo-note-section {
+  padding: 20px;
+  border-bottom: 1px solid #F5F5F5;
+}
+
+.momo-note-label {
+  display: block;
+  font-size: 14px;
+  color: #888888;
+  margin-bottom: 10px;
+}
+
+.momo-note-box {
+  background-color: #F8F8F8;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #EEEEEE;
+}
+
+.momo-note-box strong {
+  display: block;
+  font-size: 15px;
+  color: #333333;
+}
+
+.momo-note-box p {
+  margin: 5px 0 0 0;
+  font-size: 13px;
+  color: #777777;
+  line-height: 1.5;
+}
+
+/* D. MÃ QR ĐỘNG (Bọc trong khung trắng) */
+.momo-qr-section {
+  padding: 30px 20px;
+  text-align: center;
+  background-color: #FFFFFF;
+}
+
+.momo-qr-title {
+  color: #A50064; /* Màu hồng đậm đặc trưng MoMo */
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+}
+
+.momo-qr-frame {
+  width: 220px;
+  height: 220px;
+  border: 2px solid #A50064; /* Viền hồng đậm */
+  border-radius: 12px;
+  margin: 0 auto;
+  padding: 10px;
+  background-color: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.momo-qr-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.momo-scan-instruction {
+  font-size: 14px;
+  color: #555555;
+  margin: 15px 0 0 0;
+  font-weight: 500;
+}
+
+/* E. CARD FOOTER */
+.momo-card-footer {
+  padding: 15px 20px;
+  background-color: #F9F9F9;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: #AAAAAA;
+  border-top: 1px solid #F0F0F0;
+}
+
+/* 3. NÚT XÁC NHẬN "GIẢ LẬP" (Cố định ở đáy màn hình) */
+.momo-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  padding: 15px 20px;
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-momo-confirm {
+  width: 100%;
+  max-width: 500px;
+  height: 50px;
+  background-color: #A50064; /* Màu hồng đậm đặc trưng MoMo */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-momo-confirm:hover {
+  background-color: #8E0056; /* Hồng đậm hơn khi hover */
+}
+
+.btn-momo-later {
+  background: none;
+  border: none;
+  color: #A50064;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px;
+}

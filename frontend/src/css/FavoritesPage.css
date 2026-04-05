@@ -1,0 +1,282 @@
+/* src/css/FavoritesPage.css */
+
+.favorites-container {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+/* =========================================
+   1. CSS CHO PHẦN BANNER TÌM KIẾM
+========================================= */
+.book-banner {
+  background-color: #3b398c; /* Màu xanh tím đồng bộ */
+  padding: 30px 50px;
+  color: white;
+}
+
+.breadcrumb {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+.search-wrapper {
+  display: flex;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  height: 50px;
+}
+
+.search-wrapper input {
+  flex: 1;
+  padding: 0 20px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+}
+
+.filter-btn-text {
+  background: white;
+  border: none;
+  border-left: 1px solid #ddd;
+  padding: 0 20px;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-btn-icon {
+  background-color: #7b61ff; 
+  border: none;
+  width: 60px;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.search-btn-icon:hover {
+  background-color: #6a4deb;
+}
+
+.dropdown-filters {
+  display: flex;
+  gap: 15px;
+}
+
+.select-container {
+  flex: 1;
+  display: flex;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  outline: none;
+  color: #555;
+  font-size: 14px;
+}
+
+.clear-select-btn {
+  background: white;
+  border: none;
+  padding: 0 12px;
+  color: #999;
+  cursor: pointer;
+  border-left: 1px solid #eee;
+}
+
+.clear-select-btn:hover {
+  color: #dc3545;
+}
+
+/* =========================================
+   2. CSS CHO TAGS GỢI Ý
+========================================= */
+.quick-tags-section {
+  display: flex;
+  justify-content: flex-end; 
+  gap: 10px;
+  padding: 20px 50px;
+  background-color: #fff;
+}
+
+.quick-tag {
+  background-color: #6b5cd1; 
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.quick-tag:hover {
+  background-color: #5548b0;
+}
+
+/* =========================================
+   3. CSS CỦA TRANG YÊU THÍCH (ĐÃ TINH CHỈNH)
+========================================= */
+.favorites-header-section {
+  background: #3b398c; /* Đổi màu cho khớp hoàn toàn với banner trên */
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.favorites-header-section h1 {
+  margin: 0 0 10px 0;
+  font-size: 32px;
+}
+
+.favorites-header-section p {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.favorites-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+.favorite-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.favorite-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+/* Kích thước ảnh bìa sách */
+.book-cover-large {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+/* Chi tiết sách */
+.book-details {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.book-details h3 {
+  font-size: 16px;
+  color: #333;
+  margin: 0 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Cắt gọn tên sách dài thành dấu 3 chấm */
+}
+
+.book-details p {
+  font-size: 13px;
+  color: #777;
+  margin: 0 0 15px 0;
+}
+
+.btn-read {
+  margin-top: auto;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-read:hover {
+  background: #218838;
+}
+
+/* Nút trái tim xóa yêu thích */
+.btn-remove-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 18px;
+  color: #dc3545;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+  z-index: 10;
+}
+
+.btn-remove-fav:hover {
+  transform: scale(1.1);
+  background: #fff0f0;
+}
+
+.empty-favorites {
+  text-align: center;
+  padding: 50px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.empty-favorites h2 {
+  color: #555;
+}
+
+.empty-favorites p {
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.btn-go-books {
+  background: #004085;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.btn-go-books:hover {
+  background: #002752;
+}

@@ -1,0 +1,111 @@
+/* =========================================
+   src/css/GlobalEffects.css
+   HIỆU ỨNG TOÀN APP: HOA RƠI & TRANG TRÍ CÁNH
+========================================= */
+
+/* 1. BỌC TOÀN CỤC: TẠO KHUNG VÀ TRANG TRÍ HAI BÊN */
+.global-theme-wrapper {
+  position: relative;
+  min-height: 100vh;
+  /* Chừa chỗ hai bên để hiện hình trang trí (Margins) */
+  padding: 0 50px; 
+  background-color: #fafbfc; /* Nền trắng xám nhẹ nhàng */
+  overflow-x: hidden; /* Giảm giật lag */
+}
+
+/* 👉 👉 HIỆU ỨNG TRANG TRÍ HAI BÊN CÁNH (DÙNG BEFORE/AFTER) 👉 👉 */
+.global-theme-wrapper::before,
+.global-theme-wrapper::after {
+  content: "🌸 💮 🍃 🌸 💮 🍃"; /* Dùng unicode hoa cho nhẹ, ko cần ảnh */
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 50px; /* Độ rộng vùng trang trí */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; /* Phân bổ hoa đều theo chiều dọc */
+  align-items: center;
+  font-size: 20px;
+  opacity: 0.3; /* Làm mờ đi cho tinh tế, ko bị rối mắt */
+  color: #ffb7c5; /* Màu hồng hoa anh đào nhạt */
+  pointer-events: none;
+  z-index: 1; /* Nằm dưới nội dung chính một chút */
+}
+
+/* Trang trí cánh Trái */
+.global-theme-wrapper::before {
+  left: 0;
+  border-right: 2px dashed #ffb7c522; /* Thêm đường kẻ line mờ */
+}
+
+/* Trang trí cánh Phải */
+.global-theme-wrapper::after {
+  right: 0;
+  border-left: 2px dashed #ffb7c522;
+}
+
+
+/* =========================================
+   2. 👉 👉 HIỆU ỨNG HOA ANH ĐÀO RƠI TỪ TỪ 👉 👉
+   ========================================= */
+
+/* Container bọc cánh hoa (Cố định toàn màn hình) */
+.cherry-blossom-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 9999; /* Luôn nằm trên cùng */
+}
+
+/* Định nghĩa cánh hoa cơ bản */
+.petal {
+  position: absolute;
+  color: #ffb7c5; /* Hồng anh đào */
+  filter: blur(1px); /* Làm mờ nhẹ nhìn cho tự nhiên */
+  user-select: none;
+}
+
+/* ĐỊNH NGHĨA CHUYỂN ĐỘNG RƠI (KEYFRAMES) */
+@keyframes fall {
+  0% {
+    top: -50px; /* Bắt đầu từ trên đỉnh màn hình */
+    transform: translateX(0px) rotate(0deg);
+    opacity: 0; /* Hiện dần ra */
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100vh; /* Rơi xuống đáy màn hình */
+    /* Tạo hiệu ứng bay chéo chéo ngẫu nhiên */
+    transform: translateX(150px) rotate(480deg); 
+    opacity: 0; /* Mất dần đi */
+  }
+}
+
+/* 👉 TẠO SỰ NGẪU NHIÊN CHO TỪNG CÁNH HOA (VỊ TRÍ, TỐC ĐỘ, ĐỘ LỚN) 👉 */
+/* Càng nhiều variation thì nhìn càng tự nhiên */
+
+.petal:nth-child(1)  { left: 10%; animation: fall 12s linear infinite; animation-delay: 0s; font-size: 24px; }
+.petal:nth-child(2)  { left: 25%; animation: fall 18s linear infinite; animation-delay: 2s; font-size: 14px; opacity: 0.6; }
+.petal:nth-child(3)  { left: 40%; animation: fall 15s linear infinite; animation-delay: 4s; font-size: 20px; }
+.petal:nth-child(4)  { left: 60%; animation: fall 10s linear infinite; animation-delay: 1s; font-size: 28px; color: #ffc0cb; }
+.petal:nth-child(5)  { left: 75%; animation: fall 20s linear infinite; animation-delay: 6s; font-size: 16px; opacity: 0.5; }
+.petal:nth-child(6)  { left: 90%; animation: fall 14s linear infinite; animation-delay: 3s; font-size: 22px; }
+
+.petal:nth-child(7)  { left: 15%; animation: fall 17s linear infinite; animation-delay: 8s; font-size: 18px; }
+.petal:nth-child(8)  { left: 35%; animation: fall 11s linear infinite; animation-delay: 5s; font-size: 26px; }
+.petal:nth-child(9)  { left: 55%; animation: fall 19s linear infinite; animation-delay: 7s; font-size: 15px; }
+.petal:nth-child(10) { left: 80%; animation: fall 13s linear infinite; animation-delay: 9s; font-size: 21px; }
+
+.petal:nth-child(11) { left: 5%;  animation: fall 16s linear infinite; animation-delay: 11s; font-size: 19px; opacity: 0.7;}
+.petal:nth-child(12) { left: 50%; animation: fall 14s linear infinite; animation-delay: 2.5s; font-size: 23px; }
+.petal:nth-child(13) { left: 70%; animation: fall 22s linear infinite; animation-delay: 13s; font-size: 14px; color: #ffb7c588; }
+.petal:nth-child(14) { left: 95%; animation: fall 10s linear infinite; animation-delay: 0.5s; font-size: 30px; }
+.petal:nth-child(15) { left: 20%; animation: fall 15s linear infinite; animation-delay: 10s; font-size: 17px; }
