@@ -1,0 +1,220 @@
+/* src/css/ReaderPage.css */
+
+.reader-container {
+  display: flex;
+  height: 100vh; /* Chiếm trọn màn hình */
+  font-family: 'Georgia', serif; /* Font chữ chuyên dùng cho đọc sách */
+  transition: all 0.3s ease;
+}
+
+/* --- CÁC GIAO DIỆN MÀU (THEMES) --- */
+.reader-container.theme-light {
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.reader-container.theme-sepia {
+  background-color: #f4ecd8; /* Màu giấy cũ */
+  color: #5b4636;
+}
+
+.reader-container.theme-dark {
+  background-color: #1a1a1a;
+  color: #cccccc;
+}
+
+/* --- CỘT MỤC LỤC TRÁI (SIDEBAR) --- */
+.reader-sidebar {
+  width: 250px;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  background: inherit;
+  z-index: 10;
+}
+
+.reader-container.theme-dark .reader-sidebar {
+  border-right-color: rgba(255,255,255,0.1);
+}
+
+.back-btn {
+  text-decoration: none;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.toc-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.toc-list li {
+  padding: 10px 0;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(0,0,0,0.1);
+  font-size: 15px;
+}
+
+.reader-container.theme-dark .toc-list li {
+  border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.toc-list li:hover, .toc-list li.active {
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* --- KHU VỰC ĐỌC CHÍNH --- */
+.reader-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Thanh công cụ phía trên */
+.reader-toolbar {
+  height: 60px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-family: 'Arial', sans-serif;
+  gap: 20px;
+}
+
+.reader-container.theme-dark .reader-toolbar {
+  border-bottom-color: rgba(255,255,255,0.05);
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tool-btn {
+  background: none;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  color: inherit;
+}
+
+.reader-container.theme-dark .tool-btn {
+  border-color: rgba(255,255,255,0.3);
+}
+
+.tool-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.reader-container.theme-dark .tool-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.theme-circles {
+  display: flex;
+  gap: 8px;
+}
+
+.circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.circle.light { background: #fff; border-color: #ccc; }
+.circle.sepia { background: #f4ecd8; border-color: #d4c5a5; }
+.circle.dark { background: #1a1a1a; border-color: #444; }
+.circle.active { border-color: #007bff; transform: scale(1.1); }
+
+/* Vùng hiển thị chữ */
+.reader-content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.book-page {
+  max-width: 700px;
+  width: 100%;
+}
+
+.book-chapter-title {
+  font-size: 2em;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.book-text {
+  line-height: 1.8;
+  text-align: justify;
+  margin-bottom: 20px;
+}
+
+.page-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    gap: 20px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.nav-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Điều chỉnh màu chữ cho nút khi ở chế độ Dark Mode */
+.theme-dark .page-navigation {
+    border-top-color: rgba(255,255,255,0.1);
+}
+.theme-dark .nav-btn {
+    background-color: #444;
+}

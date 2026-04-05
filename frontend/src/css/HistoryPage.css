@@ -1,0 +1,273 @@
+/* src/css/HistoryPage.css */
+
+.history-container {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+/* =========================================
+   1. CSS CHO PHẦN BANNER TÌM KIẾM (MỚI THÊM)
+========================================= */
+.book-banner {
+  background-color: #3b398c; /* Màu xanh tím giống trong hình */
+  padding: 30px 50px;
+  color: white;
+}
+
+.breadcrumb {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+.search-wrapper {
+  display: flex;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  height: 50px;
+}
+
+.search-wrapper input {
+  flex: 1;
+  padding: 0 20px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+}
+
+.filter-btn-text {
+  background: white;
+  border: none;
+  border-left: 1px solid #ddd;
+  padding: 0 20px;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-btn-icon {
+  background-color: #7b61ff; /* Màu tím nhạt cho nút search */
+  border: none;
+  width: 60px;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.search-btn-icon:hover {
+  background-color: #6a4deb;
+}
+
+.dropdown-filters {
+  display: flex;
+  gap: 15px;
+}
+
+.select-container {
+  flex: 1;
+  display: flex;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  outline: none;
+  color: #555;
+  font-size: 14px;
+}
+
+.clear-select-btn {
+  background: white;
+  border: none;
+  padding: 0 12px;
+  color: #999;
+  cursor: pointer;
+  border-left: 1px solid #eee;
+}
+
+.clear-select-btn:hover {
+  color: #dc3545;
+}
+
+/* =========================================
+   2. CSS CHO TAGS GỢI Ý (MỚI THÊM)
+========================================= */
+.quick-tags-section {
+  display: flex;
+  justify-content: flex-end; /* Căn lề phải giống hình */
+  gap: 10px;
+  padding: 20px 50px;
+  background-color: #fff;
+}
+
+.quick-tag {
+  background-color: #6b5cd1; /* Màu nền tím */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.quick-tag:hover {
+  background-color: #5548b0;
+}
+
+/* =========================================
+   3. CSS PHẦN LỊCH SỬ CŨ CỦA NÍ (ĐÃ TINH CHỈNH)
+========================================= */
+.history-header-section {
+  background: #3b398c; /* Sửa lại cho tệp màu với banner ở trên */
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+  margin-top: 10px; /* Thêm khoảng cách với phần Tags */
+  margin-bottom: 30px;
+}
+
+.history-header-section h1 {
+  margin: 0 0 10px 0;
+  font-size: 32px;
+}
+
+.history-content {
+  max-width: 900px; 
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.history-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.history-card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.history-cover {
+  width: 100px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.history-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.history-details h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.history-author {
+  color: #666;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+
+/* THANH TIẾN ĐỘ ĐỌC (PROGRESS BAR) */
+.progress-container {
+  margin-bottom: 15px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #28a745;
+  border-radius: 4px;
+  transition: width 0.5s ease-in-out;
+}
+
+.history-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.btn-continue {
+  background: #004085;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-continue:hover {
+  background: #002752;
+}
+
+.history-date {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+.btn-clear-history {
+  display: block;
+  margin: 30px auto 0;
+  background: white;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-clear-history:hover {
+  background: #dc3545;
+  color: white;
+}

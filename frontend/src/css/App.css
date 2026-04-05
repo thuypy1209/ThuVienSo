@@ -1,0 +1,327 @@
+/* src/App.css */
+/* Reset CSS cơ bản */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif; /* Sử dụng phông chữ Arial cho đơn giản và giống mẫu */
+  background-color: #f0f2f5; /* Màu nền mờ cho toàn bộ trang */
+}
+
+/* Bố cục chính chia đôi màn hình */
+.login-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 1. PHẦN BÊN TRÁI: HIỆN ẢNH NÉT CĂNG */
+.login-left {
+  flex: 1.2;
+  background-image: url('/nen-thuvien.jpg'); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* 2. XÓA BỎ LỚP PHỦ MỜ VÀ MÀU XANH */
+.login-left::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* Đổi từ màu xanh sang một lớp đen cực nhẹ (0.1) 
+     để cái chữ Logo màu trắng của ní vẫn nổi bật mà không làm mất màu ảnh */
+  background: rgba(0, 0, 0, 0.1); 
+  
+  /* QUAN TRỌNG: Xóa dòng backdrop-filter: blur(5px) để hết bị mờ */
+  backdrop-filter: none; 
+}
+
+/* Phần logo lớn ở bên trái */
+.logo-section {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+
+.logo-big {
+  height: 60px;
+}
+
+/* Phần bên phải: Biểu mẫu đăng nhập trắng */
+.login-right {
+  flex: 1;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* Vùng chứa biểu mẫu để căn giữa và giới hạn độ rộng */
+.login-form-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Tiêu đề "ĐĂNG NHẬP" */
+.login-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #004085; /* Xanh lam đậm chuyên nghiệp */
+}
+
+/* Văn bản chào mừng */
+.welcome-text {
+  color: #777;
+  font-size: 15px;
+  margin-bottom: 35px;
+}
+
+/* Kiểu dáng cho từng nhóm input (nhãn + ô nhập) */
+.login-form .input-group {
+  margin-bottom: 22px;
+}
+
+.login-form label {
+  font-size: 15px;
+  font-weight: bold;
+  color: #555;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Thêm kiểu dáng cho ô nhập có biểu tượng */
+.input-with-icon {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 8px; /* Góc bo nhẹ */
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  transition: border-color 0.3s;
+}
+
+.input-with-icon:focus-within {
+  border-color: #007BFF; /* Xanh lam sáng khi focus */
+}
+
+/* Biểu tượng bên trái */
+.input-with-icon .icon {
+  font-size: 18px;
+  color: #888;
+  margin-right: 12px;
+}
+
+/* Kiểu dáng cho ô nhập thật */
+.input-with-icon input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 15px;
+  color: #333;
+}
+
+/* Biểu tượng mắt bên phải */
+.input-with-icon .toggle-icon {
+  cursor: pointer;
+  color: #888;
+  margin-left: 12px;
+}
+
+/* Liên kết "Quên mật khẩu?" */
+.forgot-password-link {
+  text-align: right;
+  font-size: 13px;
+  margin-bottom: 25px;
+}
+
+.forgot-password-link a {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+/* Nút "ĐĂNG NHẬP" chính */
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #004085; /* Xanh lam đậm như mẫu */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 25px;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #002752;
+}
+
+/* Dòng phân cách "Hoặc" */
+.or-divider {
+  position: relative;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background-color: #e0e0e0;
+}
+
+.or-divider::before {
+  left: 0;
+}
+
+.or-divider::after {
+  right: 0;
+}
+
+.or-divider span {
+  background-color: white;
+  padding: 0 12px;
+  color: #888;
+  font-size: 13px;
+}
+
+/* Nút "TÀI KHOẢN vnEdu" */
+.vnedu-button {
+  width: 100%;
+  padding: 12px;
+  background-color: white;
+  color: #004085;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  transition: background-color 0.3s;
+}
+
+.vnedu-button:hover {
+  background-color: #f8f9fa;
+}
+
+/* Logo vnEdu nhỏ trên nút */
+.vnedu-button .small-logo {
+  height: 18px;
+  margin-left: 8px;
+}
+
+/* Liên kết đăng ký */
+.register-link {
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+  margin-bottom: 25px;
+}
+
+.register-link a {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+/* Văn bản pháp lý nhỏ ở dưới cùng */
+.legal-text {
+  text-align: center;
+  color: #aaa;
+  font-size: 11px;
+}
+
+.legal-text a {
+  color: #aaa;
+  text-decoration: none;
+}
+
+.legal-text a:hover {
+  text-decoration: underline;
+}
+
+/* Kiểu dáng cho câu thông báo message */
+.message {
+  margin-top: 25px;
+  font-size: 15px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.message.success {
+  color: green;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  color: red;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+/* --- THÊM PHẦN NÀY CHO FORM ĐĂNG KÝ --- */
+.register-form-wrapper {
+  width: 100%;
+  max-width: 600px; /* Form đăng ký rộng hơn form đăng nhập 1 chút */
+}
+
+.register-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Chia làm 2 cột bằng nhau */
+  gap: 0 20px; /* Khoảng cách giữa 2 cột */
+}
+
+/* Các trường chiếm trọn 2 cột (như nút bấm, dòng pháp lý) */
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Nút quay lại đăng nhập */
+.back-to-login {
+  background: none;
+  border: none;
+  color: #007BFF;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.back-to-login:hover {
+  text-decoration: underline;
+}
+
+/* Thu nhỏ khoảng cách của ô input trong form đăng ký cho đỡ tốn diện tích */
+.register-form-grid .input-group {
+  margin-bottom: 15px;
+}
