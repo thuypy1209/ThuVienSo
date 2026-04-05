@@ -19,4 +19,5 @@ api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+export const BASE_URL = 'http://localhost:3000';
 export default api;

@@ -4,9 +4,21 @@ const BookModel = require('../schemas/books');
 // 1. Lấy danh sách Sách (Có nối bảng Category)
 const getAllBooks = async (req, res) => {
     try {
-        // Hàm populate giúp lấy toàn bộ thông tin của Category thay vì chỉ lấy mỗi cái ID
         const books = await BookModel.find({}).populate('category', 'name description');
         res.status(200).json({ success: true, message: "Lấy danh sách sách thành công", data: books });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// === HÀM MỚI: LẤY 1 CUỐN SÁCH THEO ID ===
+const getBookById = async (req, res) => {
+    try {
+        const book = await BookModel.findById(req.params.id).populate('category', 'name description');
+        if (!book) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy sách" });
+        }
+        res.status(200).json({ success: true, data: book });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -47,4 +59,10 @@ const deleteBook = async (req, res) => {
     }
 };
 
-module.exports = { getAllBooks, createBook, updateBook, deleteBook };
+module.exports = { 
+    getAllBooks, 
+    getBookById,
+    createBook, 
+    updateBook, 
+    deleteBook 
+};

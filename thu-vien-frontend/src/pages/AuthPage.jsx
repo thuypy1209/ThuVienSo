@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api'; // Thằng shipper VIP đã có Token
+import api from '../utils/api';
 
 const AuthPage = () => {
     const navigate = useNavigate();
-    const [isLogin, setIsLogin] = useState(true); // Công tắc: true là Đăng nhập, false là Đăng ký
+    const [isLogin, setIsLogin] = useState(true);
     const [message, setMessage] = useState('');
 
-    // State cho Form
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -15,12 +14,10 @@ const AuthPage = () => {
         email: ''
     });
 
-    // Hàm xử lý khi nhập chữ vào ô input
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // --- XỬ LÝ ĐĂNG NHẬP ---
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
@@ -51,11 +48,11 @@ const AuthPage = () => {
                 role: "Độc giả"
             });
             if (res.data.success) {
-                setMessage("✅ Đăng ký thành công! Mời bạn đăng nhập.");
-                setIsLogin(true); // Đăng ký xong tự chuyển sang form Đăng nhập luôn
+                setMessage("Đăng ký thành công! Mời bạn đăng nhập.");
+                setIsLogin(true);
             }
         } catch (err) {
-            setMessage("❌ " + (err.response?.data?.message || "Lỗi đăng ký"));
+            setMessage("" + (err.response?.data?.message || "Lỗi đăng ký"));
         }
     };
 
@@ -90,7 +87,6 @@ const AuthPage = () => {
     );
 };
 
-// Style tạm cho đẹp
 const inputStyle = { display: 'block', width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' };
 const btnStyle = { width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
 
