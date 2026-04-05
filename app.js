@@ -6,6 +6,27 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var rolesRouter = require('./routes/roles');
+var authRouter = require('./routes/auth');
+require('dotenv').config();
+
+var mongoose = require('mongoose');
+
+// Kết nối tới MongoDB (Database tên là: thuvienso)
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log(" Đã kết nối thành công với MongoDB (Database: thuvienso)!");
+  })
+  .catch((err) => {
+    console.log(" Lỗi kết nối MongoDB:", err.message);
+    console.log("Chi tiết lỗi:", err);
+  });
+mongoose.connection.on('connected',()=>{
+  console.log("connected");
+})
+mongoose.connection.on('disconnected',()=>{
+  console.log("disconnected");
+})
 
 var app = express();
 
@@ -21,6 +42,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/api/v1/users', require('./routes/users'));
+app.use('/api/v1/roles', require('./routes/roles'));
+app.use('/api/v1/auth', require('./routes/auth'));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -37,5 +62,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-console.log("Server đang chạy...");
+
 module.exports = app;
