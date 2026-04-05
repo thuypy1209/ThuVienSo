@@ -1,0 +1,14 @@
+.borrow-container { padding: 40px 5%; background: #f9f9f9; min-height: 100vh; }
+.sub-title { color: #666; margin-bottom: 25px; }
+
+.borrow-table-wrapper { background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+.borrow-table { width: 100%; border-collapse: collapse; text-align: left; }
+.borrow-table th { background: #f1f3f5; padding: 15px; color: #495057; font-weight: 600; }
+.borrow-table td { padding: 15px; border-bottom: 11px solid #f9f9f9; vertical-align: middle; }
+
+.status-badge { color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+.book-title-cell b { color: #004085; font-size: 15px; }
+
+.btn-return { background: #ffc107; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+.btn-detail { background: #eee; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.btn-return:hover { background: #e0a800; }

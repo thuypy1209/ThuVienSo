@@ -4,7 +4,7 @@ const borrowRecordSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book', required: true },
     borrowDate: { type: Date, default: Date.now }, // Mặc định là ngày hôm nay
-    dueDate: { type: Date, required: true }, // Ngày hạn trả
+    dueDate: { type: Date, required: true }, // Ngày hạn tr
     status: { type: String, enum: ['Đang mượn', 'Đã trả', 'Quá hạn'], default: 'Đang mượn' }
 }, { timestamps: true });
 
