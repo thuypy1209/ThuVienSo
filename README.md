@@ -1,17 +1,4 @@
 # ThuVienSo
-
-
-npm i express-generator -g
-npm i express
-express --view=ejs --git 
-(bấm y)
-npm i nodemon
-npm i
-<<<<<<< HEAD
-npm i mongoose bcrypt jsonwebtoken slugify nodemailer xlsx csv-parser express-validator
-=======
-
-viet
 #  Đồ án: Web Thư Viện Số (Backend Node.js)
 
 Dự án phát triển API Backend cho hệ thống quản lý Thư viện số, sử dụng kiến trúc MVC (trả về JSON).
