@@ -35,4 +35,16 @@ const checkAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verifyToken, checkAdmin };
+// === HÀM MỚI: Ông bảo vệ 3 – Chỉ Thủ thư hoặc Admin mới được vào ===
+const checkLibrarianOrAdmin = (req, res, next) => {
+    if (req.user && ['Admin', 'Thủ thư'].includes(req.user.role)) {
+        next();
+    } else {
+        return res.status(403).json({ 
+            success: false, 
+            message: "Từ chối truy cập: Chỉ Thủ thư và Admin mới được phép quản lý sách!" 
+        });
+    }
+};
+
+module.exports = { verifyToken, checkAdmin, checkLibrarianOrAdmin };
