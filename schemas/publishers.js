@@ -1,9 +1,9 @@
 let mongoose = require("mongoose");
-let authorSchema = new mongoose.Schema({
+let publisherSchema = new mongoose.Schema({
   name: { 
     type: String, 
     required: true },
-  bio: { 
+  address: { 
     type: String, 
     default: "" },
   slug: { 
@@ -15,4 +15,4 @@ let authorSchema = new mongoose.Schema({
     default: false }
 }, { 
     timestamps: true });
-module.exports = mongoose.model("author", authorSchema);
+module.exports = mongoose.model("publisher", publisherSchema);
