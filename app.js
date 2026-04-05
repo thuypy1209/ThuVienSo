@@ -4,8 +4,41 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+<<<<<<< HEAD
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+=======
+// --- 1. THÊM THƯ VIỆN MONGOOSE VÀ KẾT NỐI DATABASE TẠI ĐÂY ---
+var mongoose = require('mongoose');
+
+// Kết nối tới MongoDB (Database tên là: thuvienso)
+mongoose.connect('mongodb://127.0.0.1:27017/thuvienso')
+  .then(() => {
+    console.log("✅ Đã kết nối thành công với MongoDB (Database: thuvienso)!");
+  })
+  .catch((err) => {
+    console.log("❌ Lỗi kết nối MongoDB. Bạn đã mở MongoDB Compass chưa?");
+    console.log("Chi tiết lỗi:", err);
+  });
+// -------------------------------------------------------------
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var categoriesRouter = require('./routes/categories');
+var booksRouter = require('./routes/books');
+var authorsRouter = require('./routes/authors');
+var publishersRouter = require('./routes/publishers');
+var authRouter = require('./routes/auth');
+var uploadRouter = require('./routes/upload');
+var reviewsRouter = require('./routes/reviews');
+var borrowRecordsRouter = require('./routes/borrowRecords');
+var ebookFilesRouter = require('./routes/ebookFiles');
+var cors = require('cors');
+var wishlistsRouter = require('./routes/wishlists');
+var notificationsRouter = require('./routes/notifications');
+var cartsRouter = require('./routes/carts');
+var messagesRouter = require('./routes/messages');
+>>>>>>> origin/dev
 
 var app = express();
 
@@ -18,9 +51,32 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+<<<<<<< HEAD
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+=======
+app.use(cors());
+
+// Đăng ký các đường dẫn (Routes)
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/categories', categoriesRouter);
+app.use('/books', booksRouter);
+app.use('/authors', authorsRouter);
+app.use('/publishers', publishersRouter);
+app.use('/auth', authRouter);
+app.use('/upload', uploadRouter);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/reviews', reviewsRouter);
+app.use('/borrow-records', borrowRecordsRouter);
+app.use('/ebook-files', ebookFilesRouter);
+app.use('/wishlists', wishlistsRouter);
+app.use('/notifications', notificationsRouter);
+app.use('/carts', cartsRouter);
+app.use('/messages', messagesRouter);
+
+>>>>>>> origin/dev
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -37,5 +93,11 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+<<<<<<< HEAD
 console.log("Server đang chạy...");
 module.exports = app;
+=======
+
+console.log("Server Node.js đang chuẩn bị khởi động...");
+module.exports = app;
+>>>>>>> origin/dev
