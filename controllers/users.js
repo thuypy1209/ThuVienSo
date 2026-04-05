@@ -12,7 +12,10 @@ let { default: slugify } = require('slugify');
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: { user: 'YOUR_EMAIL@gmail.com', pass: 'YOUR_APP_PASSWORD' }
+    auth: { 
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS 
+    }
 });
 
 function generateRandomPassword(length = 16) {
@@ -87,7 +90,10 @@ module.exports = {
     if (!isMatch) return { success: false, message: "Mat khau cu khong chinh xac" };
 
   
-    user.password = newPassword;
+    // Băm (Hash) mật khẩu mới
+    let salt = bcrypt.genSaltSync(10);
+    let hashPassword = bcrypt.hashSync(newPassword, salt);
+    user.password = hashPassword;
     await user.save();
     return { success: true, message: "Doi mat khau thanh cong" };
     },
@@ -126,7 +132,7 @@ module.exports = {
                             "", "https://i.sstatic.net/l60Hf.png", true, 0
                         );
                         await transporter.sendMail({
-                            from: '"Hệ Thống Admin" <YOUR_EMAIL@gmail.com>', 
+                            from: '"Hệ Thống Admin" <${process.env.EMAIL_USER}>', 
                             to: email,
                             subject: 'Tài khoản đăng nhập hệ thống',
                             text: `Chào ${username},\nTài khoản của bạn:\n- Username: ${username}\n- Password: ${plainPassword}\n\nVui lòng đổi mật khẩu sau khi đăng nhập.`

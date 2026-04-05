@@ -45,19 +45,20 @@ const AuthPage = () => {
         username: loginUsername, 
         password: loginPassword 
       });
-      
+      const data = response;
+
       // Node.js trả về token, lưu vào localStorage
-      const token = typeof response === 'string' ? response : response.token;
-      if (token) {
-          localStorage.setItem('token', token);
+      if (data.token) {
+        localStorage.setItem('token', data.token);
       }
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       setMessage("✅ Đăng nhập thành công! Đang chuyển hướng...");
       setIsSuccess(true);
 
       // Đợi 1 giây rồi bay sang trang chủ (đổi /home thành / nếu bạn map HomePage vào '/')
       setTimeout(() => {
-          navigate('/'); 
+          navigate('/home'); 
       }, 1000);
 
     } catch (error) {

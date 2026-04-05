@@ -1,0 +1,230 @@
+/* src/css/AdminPage.css */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f0f2f5; /* Nền xám cực nhẹ */
+  font-family: 'Inter', sans-serif;
+}
+
+/* =========================================
+   GIAO DIỆN SIDEBAR TỐI GIẢN - HIỆN ĐẠI
+========================================= */
+.admin-sidebar {
+  width: 250px;
+  background-color: #ffffff; /* Đổi nền thành Trắng tinh khiết */
+  border-right: 1px solid #eaedf1; /* Thêm đường kẻ line mờ phân cách */
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-brand {
+  font-size: 20px;
+  font-weight: 800;
+  padding: 25px 20px;
+  color: #2c3e50; /* Chữ xám đậm sang trọng */
+  border-bottom: 1px solid #eaedf1;
+  text-align: center;
+  letter-spacing: 1.5px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+.sidebar-menu li {
+  padding: 16px 25px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #555; /* Chữ màu xám nhẹ */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent; /* Chuẩn bị sẵn 1 viền tàng hình bên trái */
+}
+
+/* Hiệu ứng rê chuột vào */
+.sidebar-menu li:hover {
+  background-color: #f8f9fa;
+  color: #3b398c;
+}
+
+/* Hiệu ứng khi đang bấm chọn (Active) */
+.sidebar-menu li.active {
+  background-color: #edf2fc; /* Nền xanh lam cực kỳ nhạt */
+  color: #3b398c; /* Chữ xanh đậm điểm nhấn */
+  border-left: 4px solid #3b398c; /* Hiện cái viền trái lên cho chuyên nghiệp */
+  font-weight: 700;
+}
+
+.admin-brand {
+  font-size: 22px;
+  font-weight: 900;
+  padding: 30px 20px;
+  
+  /* Ép nền màu trắng tinh để mất cái cục xanh đen cũ đi */
+  background-color: #ffffff; 
+  
+  /* Đổi chữ thành màu xanh tím đậm (Màu nhận diện của web) */
+  color: #3b398c; 
+  
+  border-bottom: 1px solid #eaedf1;
+  text-align: center;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.admin-menu {
+  list-style: none;
+  padding: 20px 0;
+}
+
+.admin-menu li {
+  padding: 12px 25px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-menu li:hover, .admin-menu li.active {
+  background-color: #0055aa;
+  border-left: 5px solid #ffcc00; /* Nhấn nhá chút vàng */
+}
+
+/* MAIN CONTENT */
+.admin-main {
+  flex: 1;
+  padding: 30px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.admin-header h2 {
+  color: #003366;
+  margin: 0;
+}
+
+/* BẢNG TRẮNG SẠCH SẼ */
+.admin-card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-table th {
+  background-color: #f8fbff;
+  color: #003366;
+  text-align: left;
+  padding: 15px;
+  border-bottom: 2px solid #eef2f7;
+}
+
+.admin-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #444;
+}
+
+/* NÚT BẤM */
+.btn-add {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-add:hover { background-color: #0056b3; }
+
+.btn-delete { color: #dc3545; border: none; background: none; cursor: pointer; font-weight: bold; }
+
+/* =========================================
+   FIX LỖI BẢNG MODAL BỊ LỆCH SANG PHẢI
+========================================= */
+.admin-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.6) !important; /* Làm tối mờ khung cảnh phía sau */
+  display: flex !important;
+  justify-content: center !important; /* Ép vào chính giữa chiều ngang */
+  align-items: center !important; /* Ép vào chính giữa chiều dọc */
+  z-index: 10000 !important; /* Lớp cao nhất, đè lên cả hoa anh đào rơi */
+}
+
+.admin-modal {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-height: 90vh; /* Nếu form dài quá thì tự giới hạn lại */
+  overflow-y: auto; /* Bật thanh cuộn bên trong form nếu cần */
+  position: relative;
+  /* Đảm bảo form rộng tối đa 600px/700px như ní cài trong React */
+  max-width: 95%; 
+}
+
+.cover-preview-box {
+    width: 150px; 
+    height: 200px; 
+    border: 1px dashed #ccc; 
+    margin-top: 5px; 
+    background: #f8f9fa; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    overflow: hidden;
+}
+
+.form-group textarea {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    resize: vertical;
+}
+
+.form-group input[type="file"] {
+    font-size: 13px;
+}
+/* Ép toàn bộ ô nhập liệu trong Modal có màu sáng */
+.admin-modal input[type="text"],
+.admin-modal input[type="number"],
+.admin-modal textarea {
+    background-color: #ffffff !important; /* Màu nền trắng */
+    color: #333333 !important;            /* Màu chữ xám đậm/đen */
+    border: 1px solid #ccc !important;    /* Viền xám nhẹ */
+    padding: 10px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box; /* Giữ input không bị tràn khung */
+}
+
+/* Fix lỗi khi focus vào (nhấn chuột vào ô) */
+.admin-modal input:focus, 
+.admin-modal textarea:focus {
+    border-color: #007bff !important;
+    outline: none;
+    background-color: #fff !important;
+}

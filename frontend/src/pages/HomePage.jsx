@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 
 const HomePage = () => {
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const [thongKe, setThongKe] = useState({ totalBooks: 0, totalUsers: 0, totalPosts: 0 });
@@ -12,38 +13,43 @@ const HomePage = () => {
   const [suggestedBooks, setSuggestedBooks] = useState([]);
 
   useEffect(() => {
-    // 1. Thống kê
-    const token = localStorage.getItem('token');
-    if (token) {
-        // Tạm thời hiển thị trạng thái đã đăng nhập (bạn có thể gọi API /auth/me để lấy tên thật)
-        setUser({ name: "Người dùng" });
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem("user");
+
+  // ✅ kiểm tra trước khi parse
+  if (token && userStr && userStr !== "undefined") {
+    try {
+      const savedUser = JSON.parse(userStr);
+      setUser(savedUser);
+    } catch (err) {
+      console.error("JSON parse lỗi:", err);
+      localStorage.removeItem("user"); // xóa dữ liệu lỗi
     }
+  }
 
-    const fetchData = async () => {
-        try {
-            // 1. Sách gợi ý (Lấy danh sách sách từ Backend Node.js của bạn)
-            const booksData = await axiosClient.get('/books');
-            // Tạm thời lấy 4 cuốn sách đầu tiên làm gợi ý
-            setSuggestedBooks(booksData.slice(0, 4));
+  const fetchData = async () => {
+    try {
+      const booksData = await axiosClient.get('/books');
+      setSuggestedBooks(booksData.slice(0, 4));
 
-            // 2. Thống kê (Hiện tại Backend Node.js chưa có API /thongke)
-            // Mình tạo dữ liệu ảo (mock) tạm thời, bạn có thể bổ sung API sau.
-            setThongKe({ totalBooks: booksData.length || 120, totalUsers: 45, totalPosts: 12 });
+      setThongKe({
+        totalBooks: booksData.length || 120,
+        totalUsers: 45,
+        totalPosts: 12
+      });
 
-            // 3. Tin tức nổi bật (Backend chưa có bảng News)
-            // Dữ liệu ảo tạm thời để render giao diện
-            setNews([
-                { id: 1, title: 'HUTECH Khai trương Thư Viện Số 2026', imageLink: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800', createdAt: new Date() },
-                { id: 2, title: 'Top 10 cuốn sách lập trình đáng đọc nhất', imageLink: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=200', createdAt: new Date() },
-                { id: 3, title: 'Hướng dẫn sử dụng hệ thống thư viện mới', imageLink: 'https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?q=80&w=200', createdAt: new Date() }
-            ]);
-        } catch (err) {
-            console.error("Lỗi khi tải dữ liệu trang chủ: ", err);
-        }
-    };
+      setNews([
+        { id: 1, title: 'HUTECH Khai trương Thư Viện Số 2026', imageLink: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800', createdAt: new Date() },
+        { id: 2, title: 'Top 10 cuốn sách lập trình đáng đọc nhất', imageLink: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=200', createdAt: new Date() },
+        { id: 3, title: 'Hướng dẫn sử dụng hệ thống thư viện mới', imageLink: 'https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?q=80&w=200', createdAt: new Date() }
+      ]);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu trang chủ: ", err);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -70,7 +76,6 @@ const HomePage = () => {
           <span>🔔</span> <span>❤️</span>
           <div className="user-profile" onClick={handleLogout} title="Bấm để đăng xuất">
             <div className="user-avatar">👤</div>
-            <span>Ní Việt (Đăng xuất)</span>
           </div>
         </div>
       </header>

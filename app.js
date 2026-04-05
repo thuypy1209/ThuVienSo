@@ -46,9 +46,9 @@ app.use('/users', usersRouter);
 
 // Định tuyến cho tất cả các yêu cầu khác, trả về index.html để React Router xử lý
 app.get('*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
-=======
+
 app.use('/api/v1/users', require('./routes/users'));
 app.use('/api/v1/roles', require('./routes/roles'));
 app.use('/api/v1/auth', require('./routes/auth'));
