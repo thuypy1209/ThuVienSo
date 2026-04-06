@@ -72,3 +72,5 @@ Book List: Fetch dữ liệu từ API /books và hiển thị Grid sách tại t
 Admin Dashboard: Xây dựng bảng quản lý CRUD cho sách và danh mục.
 
 Lưu Ý: Hãy đọc kỹ cấu trúc các file App.jsx, package.json và các Controller Backend trước khi đề xuất code mới. Luôn giữ phong cách giải thích code bằng tiếng Việt gần gũi, không thêm icon MD tùa ý khi  tạo chú thích 
+
+Không thêm icon vào chú thích 

@@ -39,22 +39,27 @@ io.on('connection', (socket) => {
   // Lắng nghe sự kiện người dùng bấm gửi tin nhắn
   socket.on('send_message', async (data) => {
     try {
-      // 1. Lưu tin nhắn vào Database để không bị mất
-      const newMessage = await Message.create({
-        sender: data.sender, // data.sender là ID của người dùng
-        content: data.content
-      });
-
-      // 2. Kéo thêm thông tin Tên của người gửi để hiện lên khung chat
-      const populatedMessage = await Message.findById(newMessage._id).populate('sender', 'fullName username');
-
-      // 3. Phép thuật đây: Phát trực tiếp tin nhắn này đến TẤT CẢ mọi người đang online
-      io.emit('receive_message', populatedMessage);
-      
-    } catch (error) {
-      console.log("❌ Lỗi khi lưu tin nhắn chat:", error);
+      if (!data || !data.sender || !data.content) {
+      console.log('Dữ liệu chat thiếu sender hoặc content:', data);
+      return;
     }
-  });
+
+    // 1. Lưu tin nhắn vào Database để không bị mất
+    const newMessage = await Message.create({
+      sender: data.sender, // data.sender là ID của người dùng
+      content: data.content
+    });
+
+    // 2. Kéo thêm thông tin Tên của người gửi để hiện lên khung chat
+    const populatedMessage = await Message.findById(newMessage._id).populate('sender', 'fullName username');
+
+    // 3. Phát trực tiếp tin nhắn này đến TẤT CẢ mọi người đang online
+    io.emit('receive_message', populatedMessage);
+    
+  } catch (error) {
+    console.log("❌ Lỗi khi lưu tin nhắn chat:", error);
+  }
+});
 
   // Lắng nghe khi người dùng tắt web
   socket.on('disconnect', () => {

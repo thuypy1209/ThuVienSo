@@ -38,6 +38,7 @@ const login = async (req, res) => {
             message: "Đăng nhập thành công!",
             data: {
                 userInfo: {
+                    _id: user._id,
                     id: user._id,
                     username: user.username,
                     fullName: user.fullName,
