@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Tạo một trạm phát sóng gọi thẳng vào Backend thật của bạn
 const api = axios.create({
-    baseURL: 'http://localhost:3000', // Đây là địa chỉ Backend Node.js của bạn
+    baseURL: 'http://localhost:3000', // Đổi từ 3000 sang 3069 vì backend chạy trên port này
 });
 
 // Phép thuật Cấp Quyền: Tự động nhét Token vào mọi API gửi đi

@@ -13,6 +13,8 @@ const ChatBox = () => {
     // Lấy thông tin người dùng từ túi (localStorage)
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
+    console.log('ChatBox userInfo:', userInfo); // Debug: kiểm tra userInfo
+
     useEffect(() => {
         // 1. Lắng nghe tin nhắn mới từ "loa" của Backend
         socket.on('receive_message', (data) => {
@@ -27,10 +29,16 @@ const ChatBox = () => {
 
     const sendMessage = (e) => {
         e.preventDefault();
+        console.log('sendMessage called, input:', input, 'userInfo._id:', userInfo?._id); // Debug
         if (input.trim() !== '') {
+            if (!userInfo?.id) {
+                alert('Bạn cần đăng nhập để gửi tin nhắn.');
+                return;
+            }
+
             // Gửi tin nhắn qua sợi dây điện Socket
             socket.emit('send_message', {
-                sender: userInfo._id, // ID người gửi thật
+                sender: userInfo.id, // Dùng id thay vì _id
                 content: input
             });
             setInput('');
@@ -51,13 +59,13 @@ const ChatBox = () => {
                     <div style={messageListStyle}>
                         {messages.map((msg, index) => (
                             <div key={index} style={{
-                                textAlign: msg.sender?._id === userInfo._id ? 'right' : 'left',
+                                textAlign: msg.sender?.id === userInfo.id ? 'right' : 'left',
                                 margin: '10px'
                             }}>
                                 <b style={{ fontSize: '12px', display: 'block' }}>
                                     {msg.sender?.fullName || 'Người dùng'}
                                 </b>
-                                <span style={msg.sender?._id === userInfo._id ? myMsgStyle : otherMsgStyle}>
+                                <span style={msg.sender?.id === userInfo.id ? myMsgStyle : otherMsgStyle}>
                                     {msg.content}
                                 </span>
                             </div>

@@ -49,9 +49,37 @@ const Home = () => {
             }}>
                 <h1 style={{ color: '#007bff' }}>📚 THƯ VIỆN SỐ HUTECH</h1>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button onClick={() => navigate('/forum')} style={forumBtnStyle}>
                         🏛️ Diễn đàn
+                    </button>
+
+                    <button onClick={() => navigate('/authors-list')} style={forumBtnStyle}>
+                        ✍️ Tác giả
+                    </button>
+
+                    <button onClick={() => navigate('/publishers')} style={forumBtnStyle}>
+                        🏢 NXB
+                    </button>
+
+                    <button onClick={() => navigate('/borrow-history')} style={forumBtnStyle}>
+                        📋 Lịch sử mượn
+                    </button>
+
+                    <button onClick={() => navigate('/wishlist')} style={forumBtnStyle}>
+                        ❤️ Yêu thích
+                    </button>
+
+                    <button onClick={() => navigate('/cart')} style={forumBtnStyle}>
+                        🛒 Giỏ sách
+                    </button>
+
+                    <button onClick={() => navigate('/notifications')} style={forumBtnStyle}>
+                        🔔 Thông báo
+                    </button>
+
+                    <button onClick={() => navigate('/bookshelf')} style={forumBtnStyle}>
+                        📚 Tủ sách
                     </button>
 
                     {(userInfo.role === 'Admin' || userInfo.role === 'Thủ thư') && (
@@ -116,7 +144,7 @@ const Home = () => {
     );
 };
 
-// STYLE (giữ nguyên)
+
 const bookGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px', marginTop: '20px' };
 const bookCardStyle = { border: '1px solid #ddd', padding: '15px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', backgroundColor: '#fff' };
 const readBtnStyle = { marginTop: '10px', padding: '8px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', width: '100%' };
