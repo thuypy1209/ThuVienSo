@@ -1,61 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api, { BASE_URL } from '../utils/api';
+import api from '../utils/api';
 
 const ReadBook = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [book, setBook] = useState(null);
     const [pdfUrl, setPdfUrl] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("Bạn chưa đăng nhập!");
-            navigate('/');
-            return;
-        }
-        if (!id) {
-            alert("Không tìm thấy ID sách");
-            navigate('/home');
-            return;
-        }
-
-        api.get(`/books/${id}`)
-            .then(res => {
-                if (res.data.success) {
-                    const book = res.data.data;
-                    if (book.fileUrl) {
-                        setPdfUrl(`${BASE_URL}${book.fileUrl}#toolbar=0`);
-                    } else {
-                        alert("Sách này chưa có file PDF/EPUB!");
-                        navigate('/home');
-                    }
+        const fetchFile = async () => {
+            try {
+                const res = await api.get(`/books/${id}`);
+                const data = res.data.data;
+                setBook(data);
+                
+                if (data?.fileUrl) {
+                    const finalUrl = data.fileUrl.startsWith('http') 
+                        ? data.fileUrl 
+                        : `http://localhost:3000${data.fileUrl}`;
+                        
+                    setPdfUrl(finalUrl);
                 }
-            })
-            .catch(() => {
-                alert("Không tìm thấy sách hoặc lỗi server");
-                navigate('/home');
-            });
-    }, [id, navigate]);
+            } catch (error) {
+                console.error("Lỗi:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchFile();
+    }, [id]);
+
+    if (loading) return <div style={{textAlign: 'center', padding: '100px'}}>⏳ Đang chuẩn bị trang sách...</div>;
 
     return (
-        <div 
-            onContextMenu={(e) => { e.preventDefault(); alert("⚠️ Tải xuống đã bị khóa!"); }}
-            style={{ width: '100vw', height: '100vh', backgroundColor: '#333' }}
-        >
-            <h3 style={{ color: 'white', textAlign: 'center', padding: '10px 0', margin: 0 }}>
-                📖 Đang đọc: {pdfUrl ? 'Sách của bạn' : 'Đang tải...'}
-            </h3>
-
-            {pdfUrl && (
-                <iframe
-                    src={pdfUrl}
-                    width="100%"
-                    height="90%"
-                    style={{ border: 'none' }}
-                    title="Đọc sách online"
-                />
-            )}
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#525659' }}>
+            <div style={{ padding: '10px 20px', background: '#333', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Đang đọc: <b>{book?.title}</b></span>
+                <button onClick={() => navigate(-1)} style={{ background: '#e74c3c', border: 'none', color: 'white', padding: '5px 15px', borderRadius: '5px', cursor: 'pointer' }}>Đóng</button>
+            </div>
+            
+            <div style={{ flex: 1 }}>
+                {pdfUrl ? (
+                    <iframe 
+                        src={`${pdfUrl}#toolbar=0`}
+                        width="100%" 
+                        height="100%" 
+                        style={{ border: 'none' }}
+                        title="HUTECH PDF Reader"
+                    ></iframe>
+                ) : (
+                    <div style={{ color: 'white', textAlign: 'center', marginTop: '100px' }}>
+                        <h3>⚠️ Cuốn sách này chưa có phiên bản PDF.</h3>
+                        <p>Ní vui lòng liên hệ thủ thư hoặc mượn sách giấy nhé!</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import '../css/Home.css'; // Kế thừa CSS của trang chủ
+import '../css/Home.css';
 
 const PublishersList = () => {
     const navigate = useNavigate();
@@ -13,7 +13,6 @@ const PublishersList = () => {
     useEffect(() => {
         const fetchPublishers = async () => {
             try {
-                // Gọi API lấy dữ liệu thật từ Backend
                 const res = await api.get('/publishers');
                 setPublishers(res.data.data || []);
             } catch (err) {
@@ -28,14 +27,12 @@ const PublishersList = () => {
 
     return (
         <div className="home-wrapper">
-            {/* --- NAVBAR --- */}
             <nav className="navbar" style={{ flexWrap: 'wrap', gap: '10px' }}>
                 <div className="nav-logo">📖 HUTECH DigitalLib</div>
                 <div className="nav-links" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', fontWeight: '500' }}>
                     <span onClick={() => navigate('/home')}>🏠 Trang chủ</span>
                     <span onClick={() => navigate('/forum')}>💬 Diễn đàn</span>
                     <span onClick={() => navigate('/authors-list')}>✍️ Tác giả</span>
-                    {/* Bôi đậm NXB vì đang ở trang này */}
                     <span className="active" style={{color: '#004085', fontWeight: 'bold'}} onClick={() => navigate('/publishers')}>🏢 NXB</span>
                     <span onClick={() => navigate('/borrow-history')}>📋 Lịch sử mượn</span>
                     <span onClick={() => navigate('/wishlist')}>❤️ Yêu thích</span>
@@ -48,7 +45,6 @@ const PublishersList = () => {
                 </div>
             </nav>
 
-            {/* --- NỘI DUNG CHÍNH --- */}
             <div className="container" style={{ marginTop: '30px' }}>
                 <h2 className="section-title">🏢 Đối tác Nhà Xuất Bản</h2>
                 <p style={{color: '#666', marginBottom: '30px'}}>Danh sách các nhà xuất bản đang cung cấp tài liệu cho hệ thống thư viện.</p>
@@ -92,7 +88,6 @@ const PublishersList = () => {
     );
 };
 
-// --- CSS Trực tiếp cho các Thẻ NXB ---
 const pubCardStyle = {
     background: 'white', padding: '20px', borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0,0,0,0.05)', borderLeft: '5px solid #28a745',

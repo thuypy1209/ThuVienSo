@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
-import '../css/Borrow.css'; // Sẽ tạo file này ở bước 2
+import '../css/Borrow.css'; 
 
 const BorrowHistory = () => {
     const [records, setRecords] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = userInfo?._id || userInfo?.id || userInfo?.user?._id || userInfo?.data?._id;
+
     useEffect(() => {
         const fetchHistory = async () => {
+            if (!userId) {
+                console.error("Không tìm thấy ID người dùng để lấy lịch sử!");
+                setLoading(false);
+                return;
+            }
+
             try {
-                // Gọi API lấy lịch sử mượn của chính User đang đăng nhập
-                const res = await api.get('/borrow-records/my-history'); 
+                const res = await api.get(`/borrow-records/my-history/${userId}`); 
                 setRecords(res.data.data || []);
             } catch (err) {
                 console.error("Lỗi lấy lịch sử mượn:", err);
@@ -19,20 +27,19 @@ const BorrowHistory = () => {
             }
         };
         fetchHistory();
-    }, []);
+    }, [userId]);
 
-    // Hàm đổi màu theo trạng thái
     const getStatusColor = (status) => {
-        if (status === 'Đang mượn') return '#007bff'; // Xanh dương
-        if (status === 'Đã trả') return '#28a745';    // Xanh lá
-        if (status === 'Quá hạn') return '#dc3545';   // Đỏ
+        if (status === 'Đang mượn') return '#007bff';
+        if (status === 'Đã trả') return '#28a745';
+        if (status === 'Quá hạn') return '#dc3545';
         return '#666';
     };
 
     return (
         <div className="borrow-container">
             <h2>📋 Lịch sử mượn sách của bạn</h2>
-            <p className="sub-title">Theo dõi thời hạn trả sách để tránh bị phạt nhé, Việt!</p>
+            <p className="sub-title">Theo dõi thời hạn trả sách để tránh bị phạt nhé, {userInfo.fullName || 'Việt'}!</p>
 
             {loading ? <div className="loader">Đang kiểm tra kho dữ liệu...</div> : (
                 <div className="borrow-table-wrapper">
@@ -50,11 +57,12 @@ const BorrowHistory = () => {
                             {records.length > 0 ? records.map(item => (
                                 <tr key={item._id}>
                                     <td className="book-title-cell">
-                                        <b>{item.book?.title || 'Sách đã xóa'}</b>
+                                        {/* Hiển thị tên sách từ dữ liệu thật đã Populate */}
+                                        <b>{item.book?.title || 'Sách không còn tồn tại'}</b>
                                     </td>
-                                    <td>{new Date(item.borrowDate).toLocaleDateString('vi-VN')}</td>
+                                    <td>{item.borrowDate ? new Date(item.borrowDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
                                     <td style={{fontWeight: 'bold', color: item.status === 'Quá hạn' ? 'red' : 'inherit'}}>
-                                        {new Date(item.dueDate).toLocaleDateString('vi-VN')}
+                                        {item.dueDate ? new Date(item.dueDate).toLocaleDateString('vi-VN') : 'N/A'}
                                     </td>
                                     <td>
                                         <span className="status-badge" style={{ backgroundColor: getStatusColor(item.status) }}>

@@ -1,11 +1,10 @@
-// Đường dẫn file: schemas/categories.js
 const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema({
     name: { 
         type: String, 
         required: true, 
-        unique: true // Không được tạo 2 danh mục trùng tên nhau
+        unique: true
     },
     description: { 
         type: String 
