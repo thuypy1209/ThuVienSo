@@ -1,7 +1,5 @@
-// Đường dẫn file: controllers/categories.js
 const CategoryModel = require('../schemas/categories');
 
-// 1. Lấy danh sách danh mục (Read)
 const getAllCategories = async (req, res) => {
     try {
         const categories = await CategoryModel.find({});
@@ -11,7 +9,6 @@ const getAllCategories = async (req, res) => {
     }
 };
 
-// 2. Tạo danh mục mới (Create)
 const createCategory = async (req, res) => {
     try {
         const newCategory = new CategoryModel(req.body);
@@ -22,7 +19,6 @@ const createCategory = async (req, res) => {
     }
 };
 
-// 3. Cập nhật danh mục (Update)
 const updateCategory = async (req, res) => {
     try {
         const categoryId = req.params.id;
@@ -37,7 +33,6 @@ const updateCategory = async (req, res) => {
     }
 };
 
-// 4. Xóa danh mục (Delete)
 const deleteCategory = async (req, res) => {
     try {
         const categoryId = req.params.id;

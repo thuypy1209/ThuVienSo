@@ -1,44 +1,61 @@
-const BorrowRecordModel = require('../schemas/borrowRecords');
+const BorrowRecord = require('../schemas/borrowRecords');
+const Cart = require('../schemas/carts');
 
-const getAllRecords = async (req, res) => {
+const getMyHistory = async (req, res) => {
     try {
-        const records = await BorrowRecordModel.find({})
-            .populate('user', 'fullName email')
-            .populate('book', 'title');
-        res.status(200).json({ success: true, data: records });
+        const userId = req.params.userId;
+        const history = await BorrowRecord.find({ user: userId }).populate('book');
+
+        res.status(200).json({
+            success: true,
+            data: history
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: "Lỗi Server: " + error.message });
     }
 };
 
-const createRecord = async (req, res) => {
+const checkoutCart = async (req, res) => {
     try {
-        const newRecord = new BorrowRecordModel(req.body);
-        const savedRecord = await newRecord.save();
-        res.status(201).json({ success: true, message: "Tạo phiếu mượn thành công", data: savedRecord });
+        const { user } = req.body;
+
+        const cartItems = await Cart.find({ user: user });
+        if (cartItems.length === 0) {
+            return res.status(400).json({ success: false, message: "Giỏ hàng trống à ní ơi!" });
+        }
+
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 14);
+
+        const records = cartItems.map(item => ({
+            user: user,
+            book: item.book,
+            dueDate: dueDate,
+            status: 'Đang mượn'
+        }));
+
+        await BorrowRecord.insertMany(records);
+
+        await Cart.deleteMany({ user: user });
+
+        res.status(201).json({
+            success: true,
+            message: "Mượn sách thành công rồi nhé! Hãy ra quầy nhận sách."
+        });
+
     } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: "Lỗi Server khi mượn: " + error.message });
     }
 };
 
-const updateRecord = async (req, res) => {
-    try {
-        const updatedRecord = await BorrowRecordModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedRecord) return res.status(404).json({ success: false, message: "Không tìm thấy phiếu mượn" });
-        res.status(200).json({ success: true, message: "Cập nhật phiếu mượn thành công", data: updatedRecord });
-    } catch (error) {
-        res.status(400).json({ success: false, message: error.message });
-    }
-};
+const getAllRecords = async (req, res) => { /* Xử lý lấy tất cả cho Admin */ };
+const updateRecord = async (req, res) => { /* Xử lý cập nhật trạng thái */ };
+const deleteRecord = async (req, res) => { /* Xử lý xóa đơn mượn */ };
 
-const deleteRecord = async (req, res) => {
-    try {
-        const deletedRecord = await BorrowRecordModel.findByIdAndDelete(req.params.id);
-        if (!deletedRecord) return res.status(404).json({ success: false, message: "Không tìm thấy để xóa" });
-        res.status(200).json({ success: true, message: "Xóa phiếu mượn thành công" });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+module.exports = {
+    getMyHistory,
+    checkoutCart,
+    getAllRecords,
+    updateRecord,
+    deleteRecord
 };
-
-module.exports = { getAllRecords, createRecord, updateRecord, deleteRecord };

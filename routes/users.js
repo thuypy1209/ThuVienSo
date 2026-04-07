@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+
+
 var express = require('express');
 var router = express.Router();
 
@@ -8,24 +9,19 @@ router.get('/', function(req, res, next) {
 });
 
 module.exports = router;
-=======
+
 // Đường dẫn file: routes/users.js
+
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/users'); 
+const userController = require('../controllers/users');
+const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 
-// Mở đường dẫn GET /users -> Lấy danh sách
-router.get('/', userController.getAllUsers);
+router.get('/', verifyToken, checkRole(['Admin', 'Thủ thư']), userController.getAllUsers);
 
-// Mở đường dẫn POST /users -> Tạo mới
-router.post('/', userController.createUser);
-
-// Mở đường dẫn PUT /users/:id -> Cập nhật (Sửa)
-// Dấu :id nghĩa là một giá trị động (chính là _id của user)
-router.put('/:id', userController.updateUser);
-
-// Mở đường dẫn DELETE /users/:id -> Xóa
-router.delete('/:id', userController.deleteUser);
+router.post('/', verifyToken, checkRole(['Admin', 'Thủ thư']), userController.createUser);
+router.put('/:id', verifyToken, checkRole(['Admin', 'Thủ thư']), userController.updateUser);
+router.delete('/:id', verifyToken, checkRole(['Admin', 'Thủ thư']), userController.deleteUser);
 
 module.exports = router;
->>>>>>> origin/dev
+

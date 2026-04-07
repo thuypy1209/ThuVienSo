@@ -4,14 +4,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-<<<<<<< HEAD
+
+
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-=======
+
 // --- 1. THÊM THƯ VIỆN MONGOOSE VÀ KẾT NỐI DATABASE TẠI ĐÂY ---
+
 var mongoose = require('mongoose');
 
-// Kết nối tới MongoDB (Database tên là: thuvienso)
 mongoose.connect('mongodb://127.0.0.1:27017/thuvienso')
   .then(() => {
     console.log("✅ Đã kết nối thành công với MongoDB (Database: thuvienso)!");
@@ -38,7 +40,9 @@ var wishlistsRouter = require('./routes/wishlists');
 var notificationsRouter = require('./routes/notifications');
 var cartsRouter = require('./routes/carts');
 var messagesRouter = require('./routes/messages');
->>>>>>> origin/dev
+
+var postsRouter = require('./routes/posts');
+
 
 var app = express();
 
@@ -51,7 +55,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-<<<<<<< HEAD
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -75,29 +79,25 @@ app.use('/wishlists', wishlistsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/carts', cartsRouter);
 app.use('/messages', messagesRouter);
+app.use('/posts', postsRouter);
 
->>>>>>> origin/dev
 
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
-<<<<<<< HEAD
+
 console.log("Server đang chạy...");
 module.exports = app;
-=======
+
 
 console.log("Server Node.js đang chuẩn bị khởi động...");
 module.exports = app;
->>>>>>> origin/dev
+

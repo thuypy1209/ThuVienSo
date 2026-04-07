@@ -6,7 +6,7 @@ import '../css/Home.css';
 const AuthorsList = () => {
     const navigate = useNavigate();
     const [authors, setAuthors] = useState([]);
-    const [searchTerm, setSearchTerm] = useState(''); // Thêm state cho ô tìm kiếm
+    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -26,14 +26,12 @@ const AuthorsList = () => {
         fetchAuthors();
     }, []);
 
-    // Logic Lọc tác giả theo tên
     const filteredAuthors = authors.filter(author => 
         author.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
         <div className="home-wrapper" style={{ backgroundColor: '#f4f7f6', minHeight: '100vh' }}>
-            {/* --- NAVBAR --- */}
             <nav className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' }}>
                 <div className="nav-logo" style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a5f7a', cursor: 'pointer' }} onClick={() => navigate('/home')}>
                     📚 HUTECH Library
@@ -60,7 +58,7 @@ const AuthorsList = () => {
                         <p style={{color: '#666', margin: '5px 0 0 0'}}>Khám phá tiểu sử và các tác phẩm nổi bật.</p>
                     </div>
                     
-                    {/* Ô TÌM KIẾM TÁC GIẢ */}
+                    {/*TÌM KIẾM TÁC GIẢ */}
                     <div style={{ display: 'flex', background: 'white', borderRadius: '30px', padding: '5px 15px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', width: '300px' }}>
                         <input 
                             type="text" 
