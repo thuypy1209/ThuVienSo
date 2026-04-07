@@ -1,21 +1,25 @@
 const Wishlist = require('../schemas/wishlists');
 
-// 1. Chức năng: Thêm sách vào tủ sách yêu thích
 const addToWishlist = async (req, res) => {
     try {
-        const { user, book } = req.body;
+        const { book, user } = req.body;
 
-        // Bước 1: Kiểm tra xem user này đã thích cuốn sách này chưa?
+        if (!book || !user) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu ID sách hoặc ID người dùng rồi ní ơi!"
+            });
+        }
+
         const alreadyExists = await Wishlist.findOne({ user: user, book: book });
-        
+
         if (alreadyExists) {
             return res.status(400).json({
                 success: false,
                 message: "Sách này đã có trong tủ sách yêu thích của bạn rồi!"
             });
         }
-
-        // Bước 2: Nếu chưa có thì tạo mới
+ 
         const newWishlistItem = await Wishlist.create({
             user: user,
             book: book
@@ -36,13 +40,10 @@ const addToWishlist = async (req, res) => {
     }
 };
 
-// 2. Chức năng: Lấy danh sách sách yêu thích của 1 người dùng
 const getWishlistByUser = async (req, res) => {
     try {
-        const userId = req.params.userId; // Lấy ID người dùng từ trên thanh URL xuống
+        const userId = req.params.userId; 
 
-        // Tìm tất cả dữ liệu có cột user khớp với ID này
-        // Hàm .populate('book') giống như phép thuật: Thay vì chỉ trả về cái ID của sách, nó sẽ chạy sang bảng Book lấy luôn tên sách, tác giả, ảnh bìa... về cho mình.
         const list = await Wishlist.find({ user: userId }).populate('book');
 
         res.status(200).json({
@@ -60,8 +61,26 @@ const getWishlistByUser = async (req, res) => {
     }
 };
 
-// Xuất 2 hàm này ra để file Route dùng
+const removeFromWishlist = async (req, res) => {
+    try {
+        const wishId = req.params.id; 
+        await Wishlist.findByIdAndDelete(wishId);
+        
+        res.status(200).json({
+            success: true,
+            message: "Đã xóa khỏi tủ sách yêu thích"
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Lỗi Server khi xóa yêu thích",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     addToWishlist,
-    getWishlistByUser
+    getWishlistByUser,
+    removeFromWishlist
 };

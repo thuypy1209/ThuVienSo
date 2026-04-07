@@ -7,15 +7,23 @@ const Cart = () => {
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = userInfo?._id || userInfo?.id || userInfo?.user?._id || userInfo?.data?._id;
 
     useEffect(() => {
         fetchCart();
     }, []);
 
     const fetchCart = async () => {
+        if (!userId) {
+            console.error("Lỗi: Không tìm thấy ID người dùng. Vui lòng đăng nhập lại!");
+            setLoading(false);
+            return;
+        }
+
         try {
-            const res = await api.get('/carts');
+            const res = await api.get(`/carts/${userId}`);
             setCartItems(res.data.data || []);
         } catch (err) {
             console.error("Lỗi lấy giỏ sách:", err);
@@ -43,7 +51,8 @@ const Cart = () => {
         }
 
         try {
-            await api.post('/borrow-records/checkout-cart');
+            await api.post('/borrow-records/checkout-cart', { user: userId });
+            
             alert("🎉 Đăng ký mượn sách thành công! Hãy đến quầy thủ thư để nhận sách.");
             setCartItems([]); 
             navigate('/borrow-history'); 
@@ -52,7 +61,6 @@ const Cart = () => {
         }
     };
 
-    // Hàm kiểm tra xem trong giỏ có cuốn nào hết hàng không để Khóa nút Mượn
     const isCartInvalid = cartItems.some(item => item.book?.stock === 0);
 
     return (
@@ -73,12 +81,11 @@ const Cart = () => {
                     <span style={linkStyle} onClick={() => navigate('/notifications')}>🔔 Thông báo</span>
                 </div>
                 <div className="nav-user" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <span style={{ fontWeight: '500', color: '#333' }}>Xin chào, <span style={{ color: '#1a5f7a', fontWeight: 'bold' }}>{userInfo.fullName || 'Bạn'}</span></span>
+                    <span style={{ fontWeight: '500', color: '#333' }}>Xin chào, <span style={{ color: '#1a5f7a', fontWeight: 'bold' }}>{userInfo.fullName || userInfo?.user?.fullName || 'Bạn'}</span></span>
                     <button onClick={() => {localStorage.clear(); navigate('/')}} style={logoutBtnStyle}>Đăng xuất</button>
                 </div>
             </nav>
 
-            {/* --- NỘI DUNG GIỎ SÁCH --- */}
             <div className="container" style={{ maxWidth: '900px', margin: '40px auto', padding: '0 20px' }}>
                 <h2 style={{ fontSize: '28px', color: '#1a5f7a', borderBottom: '2px solid #eaeaea', paddingBottom: '15px', marginBottom: '30px' }}>
                     🛒 Giỏ Sách Chờ Mượn ({cartItems.length})
@@ -90,7 +97,6 @@ const Cart = () => {
                             const book = item.book;
                             if (!book) return null;
                             
-                            // Giả định backend có trường `stock` (tồn kho). Nếu không có, mặc định coi là còn hàng.
                             const stock = book.stock !== undefined ? book.stock : 5; 
                             const isOutOfStock = stock <= 0;
 
@@ -102,7 +108,6 @@ const Cart = () => {
                                         <h3 style={{ margin: '0 0 10px 0', color: '#2c3e50', fontSize: '20px' }}>{book.title}</h3>
                                         <p style={{ margin: '0 0 8px 0', color: '#666' }}>✍️ Tác giả: <b>{book.author?.name || 'Ẩn danh'}</b></p>
                                         
-                                        {/* TRẠNG THÁI TỒN KHO */}
                                         {isOutOfStock ? (
                                             <span style={{ background: '#fee', color: '#e74c3c', padding: '5px 12px', borderRadius: '15px', fontSize: '13px', fontWeight: 'bold' }}>
                                                 ❌ Đã hết sách trong kho
@@ -131,7 +136,6 @@ const Cart = () => {
                             </div>
                         )}
                         
-                        {/* KHU VỰC THANH TOÁN (XÁC NHẬN MƯỢN) */}
                         {cartItems.length > 0 && (
                             <div style={{ background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 -4px 15px rgba(0,0,0,0.05)', marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
@@ -161,7 +165,6 @@ const Cart = () => {
     );
 };
 
-// --- CSS NỘI TUYẾN ---
 const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 };
 const linkStyle = { cursor: 'pointer', padding: '8px 12px', borderRadius: '5px', transition: 'background 0.2s' };
 const logoutBtnStyle = { backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' };

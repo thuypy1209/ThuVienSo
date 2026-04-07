@@ -21,47 +21,42 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-// --- BẮT ĐẦU CẤU HÌNH SOCKET.IO CHO CHAT REALTIME ---
+// =======================================================
+// BẮT ĐẦU CẤU HÌNH SOCKET.IO CHO CHAT REALTIME
+// =======================================================
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: "*", // Cho phép ReactJS gọi tới mà không bị chặn (Lỗi CORS)
+    origin: "*", // Cho phép mọi domain kết nối để không bị chặn (CORS)
     methods: ["GET", "POST"]
   }
 });
 
-const Message = require('../schemas/messages'); // Gọi khuôn đúc ra để lưu DB
-
-// Lắng nghe khi có người dùng truy cập vào trang web
 io.on('connection', (socket) => {
-  console.log('⚡ Một người dùng vừa kết nối chat. ID:', socket.id);
+  console.log('⚡ Sinh viên HUTECH vừa kết nối Diễn đàn. ID:', socket.id);
 
-  // Lắng nghe sự kiện người dùng bấm gửi tin nhắn
-  socket.on('send_message', async (data) => {
-    try {
-      // 1. Lưu tin nhắn vào Database để không bị mất
-      const newMessage = await Message.create({
-        sender: data.sender, // data.sender là ID của người dùng
-        content: data.content
-      });
-
-      // 2. Kéo thêm thông tin Tên của người gửi để hiện lên khung chat
-      const populatedMessage = await Message.findById(newMessage._id).populate('sender', 'fullName username');
-
-      // 3. Phép thuật đây: Phát trực tiếp tin nhắn này đến TẤT CẢ mọi người đang online
-      io.emit('receive_message', populatedMessage);
-      
-    } catch (error) {
-      console.log("❌ Lỗi khi lưu tin nhắn chat:", error);
-    }
+  // 1. Lắng nghe và phát BÀI ĐĂNG MỚI
+  socket.on('send_post', (data) => {
+    socket.broadcast.emit('receive_post', data);
   });
 
-  // Lắng nghe khi người dùng tắt web
+  // 2. Lắng nghe và phát thông báo THẢ LIKE
+  socket.on('send_like', (data) => {
+    socket.broadcast.emit('receive_like', data);
+  });
+
+  // 3. Lắng nghe và phát BÌNH LUẬN MỚI
+  socket.on('send_comment', (data) => {
+    socket.broadcast.emit('receive_comment', data);
+  });
+
   socket.on('disconnect', () => {
-    console.log('💤 Một người dùng đã rời khỏi phòng chat. ID:', socket.id);
+    console.log('💤 Sinh viên rời Diễn đàn. ID:', socket.id);
   });
 });
-// --- KẾT THÚC CẤU HÌNH SOCKET.IO ---
+// =======================================================
+// KẾT THÚC CẤU HÌNH SOCKET.IO
+// =======================================================
 
 /**
  * Listen on provided port, on all network interfaces.

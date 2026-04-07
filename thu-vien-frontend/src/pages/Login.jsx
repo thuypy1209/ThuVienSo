@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Lấy đồ nghề chuyển trang ra
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api'; 
 
 const Login = () => {
@@ -7,7 +7,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     
-    const navigate = useNavigate(); // 2. Bật công cụ chuyển trang
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault(); 
@@ -27,9 +27,8 @@ const Login = () => {
                 setMessage("✅ Đăng nhập thành công! Đang chuyển vào thư viện...");
                 console.log("Token lấy được là:", token);
                 
-                // 3. Phép thuật chuyển trang nằm ở đây: Đợi 1 giây rồi bay sang trang đọc sách
                 setTimeout(() => {
-                    navigate('/doc-sach');
+                    navigate('/home');
                 }, 1000);
             }
         } catch (error) {

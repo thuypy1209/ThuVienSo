@@ -1,7 +1,5 @@
-// Đường dẫn file: controllers/users.js
 const UserModel = require('../schemas/users'); 
 
-// 1. Hàm lấy danh sách tất cả người dùng (Read)
 const getAllUsers = async (req, res) => {
     try {
         const users = await UserModel.find({});
@@ -11,7 +9,6 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// 2. Hàm tạo người dùng mới (Create)
 const createUser = async (req, res) => {
     try {
         const newUser = new UserModel(req.body);
@@ -22,12 +19,9 @@ const createUser = async (req, res) => {
     }
 };
 
-// 3. Hàm cập nhật thông tin người dùng (Update)
 const updateUser = async (req, res) => {
     try {
-        // req.params.id chính là cái mã _id truyền trên đường dẫn URL
         const userId = req.params.id; 
-        // req.body là dữ liệu mới muốn sửa
         const updatedUser = await UserModel.findByIdAndUpdate(userId, req.body, { new: true }); // {new: true} để trả về data sau khi đã sửa
         
         if (!updatedUser) {
@@ -39,7 +33,6 @@ const updateUser = async (req, res) => {
     }
 };
 
-// 4. Hàm xóa người dùng (Delete)
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -54,7 +47,6 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// Xuất cả 4 hàm ra
 module.exports = { 
     getAllUsers, 
     createUser,

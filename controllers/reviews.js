@@ -1,9 +1,7 @@
-// Đường dẫn file: controllers/reviews.js
 const ReviewModel = require('../schemas/reviews');
 
 const getAllReviews = async (req, res) => {
     try {
-        // Dùng populate để lấy luôn tên User và tên Sách cho dễ nhìn
         const reviews = await ReviewModel.find({})
             .populate('user', 'fullName')
             .populate('book', 'title');

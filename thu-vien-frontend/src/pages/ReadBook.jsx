@@ -15,9 +15,13 @@ const ReadBook = () => {
                 const res = await api.get(`/books/${id}`);
                 const data = res.data.data;
                 setBook(data);
+                
                 if (data?.fileUrl) {
-                    // API thật trỏ tới thư mục tĩnh trên server Node.js
-                    setPdfUrl(`http://localhost:3000/uploads/${data.fileUrl}`);
+                    const finalUrl = data.fileUrl.startsWith('http') 
+                        ? data.fileUrl 
+                        : `http://localhost:3000${data.fileUrl}`;
+                        
+                    setPdfUrl(finalUrl);
                 }
             } catch (error) {
                 console.error("Lỗi:", error);
@@ -40,7 +44,7 @@ const ReadBook = () => {
             <div style={{ flex: 1 }}>
                 {pdfUrl ? (
                     <iframe 
-                        src={`${pdfUrl}#toolbar=0`} // #toolbar=0 để hạn chế sinh viên tải lậu file
+                        src={`${pdfUrl}#toolbar=0`}
                         width="100%" 
                         height="100%" 
                         style={{ border: 'none' }}

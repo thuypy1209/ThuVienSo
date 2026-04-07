@@ -4,7 +4,7 @@ import api from '../utils/api';
 import '../css/Home.css';
 
 const AuthorDetail = () => {
-    const { id } = useParams(); // Lấy ID tác giả từ trên URL xuống
+    const { id } = useParams();
     const navigate = useNavigate();
     const [author, setAuthor] = useState(null);
     const [authorBooks, setAuthorBooks] = useState([]);
@@ -13,22 +13,15 @@ const AuthorDetail = () => {
     useEffect(() => {
         const fetchDetailData = async () => {
             try {
-                // 1. Lấy thông tin Tác giả
-                // (Vì không chắc backend ní có API lấy 1 tác giả không, nên mình lấy hết rồi filter ra cho an toàn 100%)
-                const resAuthors = await api.get('/authors');
-                const currentAuthor = resAuthors.data.data.find(a => a._id === id);
-                setAuthor(currentAuthor);
-
-                // 2. Lấy danh sách Sách và lọc ra sách CỦA TÁC GIẢ NÀY
-                const resBooks = await api.get('/books');
-                const allBooks = resBooks.data.data || [];
-                const filteredBooks = allBooks.filter(book => 
-                    book.author === id || book.author?._id === id
-                );
-                setAuthorBooks(filteredBooks);
-
+                setLoading(true);
+                const authorRes = await api.get(`/authors/${id}`);
+                setAuthor(authorRes.data.data);
+                
+                const booksRes = await api.get(`/books?authorId=${id}`);
+                setAuthorBooks(booksRes.data.data);
+                
             } catch (error) {
-                console.error("Lỗi lấy dữ liệu:", error);
+                console.error("Lỗi lấy dữ liệu chi tiết tác giả:", error);
             } finally {
                 setLoading(false);
             }
@@ -41,7 +34,6 @@ const AuthorDetail = () => {
 
     return (
         <div className="home-wrapper" style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '50px' }}>
-            {/* Tự copy <nav> vào đây cho đẹp nhé, mình lược bớt cho code ngắn */}
             
             <div className="container" style={{ maxWidth: '1000px', margin: '30px auto', padding: '0 20px' }}>
                 <button onClick={() => navigate('/authors-list')} style={{ background: 'transparent', border: 'none', color: '#1a5f7a', fontWeight: 'bold', cursor: 'pointer', marginBottom: '20px', fontSize: '16px' }}>
@@ -73,10 +65,10 @@ const AuthorDetail = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
                     {authorBooks.length > 0 ? authorBooks.map(book => (
                         <div key={book._id} style={{ background: 'white', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                            <img src={book.coverImage || "https://via.placeholder.com/200x280?text=Sách+HUTECH"} alt={book.title} style={{ width: '100%', height: '250px', objectFit: 'cover' }} />
+                            <img src={book.coverImage || "https://via.placeholder.com/200x280.png?text=Sách+HUTECH"} alt={book.title} style={{ width: '100%', height: '250px', objectFit: 'cover' }} />
                             <div style={{ padding: '15px' }}>
                                 <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', color: '#333' }}>{book.title}</h4>
-                                <button onClick={() => navigate('/doc-sach')} style={{ width: '100%', background: '#28a745', color: 'white', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>📖 Đọc ngay</button>
+                                <button onClick={() => navigate(`/doc-sach/${book._id}`)} style={{ width: '100%', background: '#28a745', color: 'white', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>📖 Đọc ngay</button>
                             </div>
                         </div>
                     )) : (

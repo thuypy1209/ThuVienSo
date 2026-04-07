@@ -3,11 +3,12 @@ const mongoose = require('mongoose');
 const postSchema = new mongoose.Schema({
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String, required: true },
-    image: { type: String, default: "" }, // Lưu link ảnh nếu có
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Danh sách người thích
+    image: { type: String, default: "" }, 
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], 
     comments: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         text: String,
+        image: { type: String, default: "" },
         createdAt: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });

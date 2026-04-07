@@ -4,10 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-// --- 1. THÊM THƯ VIỆN MONGOOSE VÀ KẾT NỐI DATABASE TẠI ĐÂY ---
 var mongoose = require('mongoose');
 
-// Kết nối tới MongoDB (Database tên là: thuvienso)
 mongoose.connect('mongodb://127.0.0.1:27017/thuvienso')
   .then(() => {
     console.log("✅ Đã kết nối thành công với MongoDB (Database: thuvienso)!");
@@ -34,6 +32,7 @@ var wishlistsRouter = require('./routes/wishlists');
 var notificationsRouter = require('./routes/notifications');
 var cartsRouter = require('./routes/carts');
 var messagesRouter = require('./routes/messages');
+var postsRouter = require('./routes/posts');
 
 var app = express();
 
@@ -65,20 +64,17 @@ app.use('/wishlists', wishlistsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/carts', cartsRouter);
 app.use('/messages', messagesRouter);
+app.use('/posts', postsRouter);
 
 
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });

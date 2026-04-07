@@ -1,38 +1,38 @@
-// Đường dẫn file: middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const publicKey = fs.readFileSync('./public.pem', 'utf8');
 
-// Chìa khóa này BẮT BUỘC phải giống hệt chìa khóa bên file controllers/auth.js lúc nãy
-const SECRET_KEY = "ThuVienSo_Hutech_Secret";
-
-// 1. Ông bảo vệ 1: Kiểm tra xem có đem theo Thẻ bài (Token) không?
 const verifyToken = (req, res, next) => {
-    // Lấy thẻ bài từ trong Header của Postman gửi lên
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Tách chữ "Bearer " ra để lấy đúng cái mã
-
+    const token = authHeader && authHeader.split(' ')[1];
     if (!token) {
-        return res.status(401).json({ success: false, message: "Từ chối truy cập: Bạn chưa đăng nhập (Thiếu Token)!" });
+        return res.status(401).json({ success: false, message: "Thiếu Token!" });
     }
-
     try {
-        // Đưa thẻ bài vào máy quét để giải mã
-        const decoded = jwt.verify(token, SECRET_KEY);
-        // Quét thành công, lưu thông tin id và role của người này vào request để dùng về sau
-        req.user = decoded; 
-        next(); // Mở cửa cho đi tiếp vào xử lý (gọi Controller)
+        const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] });
+        req.user = decoded;
+        next();
     } catch (error) {
-        return res.status(403).json({ success: false, message: "Từ chối truy cập: Token không hợp lệ hoặc đã hết hạn!" });
+        return res.status(403).json({ success: false, message: "Từ chối truy cập: Token không hợp lệ!" });
     }
 };
 
-// 2. Ông bảo vệ 2: Kiểm tra xem quyền có phải là Admin không?
+const checkRole = (allowedRoles) => {
+    return (req, res, next) => {
+        if (req.user && allowedRoles.includes(req.user.role)) {
+            next();
+        } else {
+            return res.status(403).json({
+                success: false,
+                message: "Từ chối truy cập: Bạn không có quyền thực hiện hành động này!"
+            });
+        }
+    };
+};
+
 const checkAdmin = (req, res, next) => {
-    // Phải đi qua ông bảo vệ 1 (verifyToken) trước thì mới có biến req.user
-    if (req.user && req.user.role === 'Admin') {
-        next(); // Đúng là Admin, mời sếp qua!
-    } else {
-        return res.status(403).json({ success: false, message: "Từ chối truy cập: Chỉ có Admin mới được thực hiện hành động này!" });
-    }
+    if (req.user && req.user.role === 'Admin') next();
+    else return res.status(403).json({ success: false, message: "Chỉ Admin mới được thực hiện!" });
 };
 
-module.exports = { verifyToken, checkAdmin };
+module.exports = { verifyToken, checkAdmin, checkRole };

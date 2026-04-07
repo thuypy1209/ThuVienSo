@@ -2,25 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { io } from 'socket.io-client';
-import '../css/Home.css'; // Xài lại CSS của trang chủ
+import '../css/Home.css'; 
 
 const socket = io('http://localhost:3000');
+
+const EMOJIS = ['😀', '😂', '😍', '😎', '🙏', '👍', '🔥', '❤️', '🎉', '💡'];
 
 const Forum = () => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [newPost, setNewPost] = useState('');
+    const [imageFile, setImageFile] = useState(null); 
     
-    // Quản lý trạng thái mở rộng bình luận của từng bài viết
     const [expandedComments, setExpandedComments] = useState({}); 
     const [commentInputs, setCommentInputs] = useState({});
+    const [commentImages, setCommentImages] = useState({}); 
+    const [showEmojis, setShowEmojis] = useState({}); 
     
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = userInfo?._id || userInfo?.id || userInfo?.user?._id || userInfo?.data?._id;
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await api.get('/messages'); 
+                const res = await api.get('/posts'); 
                 setPosts(res.data.data || []);
             } catch (err) {
                 console.error("Lỗi lấy bài đăng:", err);
@@ -28,84 +33,121 @@ const Forum = () => {
         };
         fetchPosts();
 
-        // Lắng nghe bài đăng mới từ Socket.io
-        socket.on('receive_post', (data) => {
-            setPosts((prev) => [data, ...prev]);
+        socket.on('receive_post', (newPostData) => {
+            setPosts((prev) => [newPostData, ...prev]);
         });
-        
-        return () => socket.off('receive_post');
-    }, []);
 
-    // --- HÀM ĐĂNG BÀI ---
-    const handlePost = async (e) => {
-        e.preventDefault();
-        if (!newPost.trim()) return;
-
-        // Bắn dữ liệu qua Socket
-        socket.emit('send_post', {
-            sender: userInfo._id,
-            content: newPost,
-            // Thêm các trường rỗng để tránh lỗi khi render ngay lập tức
-            likes: [], 
-            comments: []
+        socket.on('receive_like', ({ postId, likes }) => {
+            setPosts((prev) => prev.map(p => p._id === postId ? { ...p, likes } : p));
         });
-        setNewPost('');
-    };
 
-    // --- HÀM LIKE BÀI VIẾT ---
-    const handleLike = async (postId) => {
-        try {
-            // Giả sử Backend của ní có API này
-            // await api.post(`/messages/${postId}/like`);
-            
-            // Tạm thời update giao diện (Demo)
-            setPosts(posts.map(p => {
-                if(p._id === postId) {
-                    const isLiked = p.likes?.includes(userInfo._id);
-                    return { 
-                        ...p, 
-                        likes: isLiked ? p.likes.filter(id => id !== userInfo._id) : [...(p.likes || []), userInfo._id] 
-                    };
+        socket.on('receive_comment', ({ postId, newComment }) => {
+            setPosts((prev) => prev.map(p => {
+                if (p._id === postId) {
+                    const exists = p.comments?.find(c => c._id === newComment._id);
+                    return exists ? p : { ...p, comments: [...(p.comments || []), newComment] };
                 }
                 return p;
             }));
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        });
+        
+        return () => {
+            socket.off('receive_post');
+            socket.off('receive_like');
+            socket.off('receive_comment');
+        };
+    }, []);
 
-    // --- HÀM ẨN/HIỆN BÌNH LUẬN ---
-    const toggleComments = (postId) => {
-        setExpandedComments(prev => ({
-            ...prev,
-            [postId]: !prev[postId]
-        }));
-    };
-
-    // --- HÀM GỬI BÌNH LUẬN ---
-    const handleCommentSubmit = async (postId) => {
-        const cmtText = commentInputs[postId];
-        if(!cmtText?.trim()) return;
+    const handlePost = async (e) => {
+        e.preventDefault();
+        if (!newPost.trim() && !imageFile) return;
 
         try {
-            // await api.post(`/messages/${postId}/comment`, { text: cmtText });
-            alert("Đã gửi bình luận!");
-            setCommentInputs({...commentInputs, [postId]: ''});
+            const formData = new FormData();
+            formData.append('sender', userId);
+            if (newPost.trim()) formData.append('content', newPost);
+            if (imageFile) formData.append('image', imageFile);
+
+            const res = await api.post('/posts', formData);
+            const savedPost = res.data.data;
+
+            setPosts([savedPost, ...posts]);
+            socket.emit('send_post', savedPost);
+            
+            setNewPost('');
+            setImageFile(null);
         } catch (error) {
-            console.error(error);
+            console.error("Lỗi khi đăng bài:", error);
+            alert("Có lỗi xảy ra khi đăng bài!");
         }
     };
 
-    // --- HÀM BÁO CÁO ---
-    const handleReport = (postId) => {
-        if(window.confirm("Bạn có chắc chắn muốn báo cáo bài viết này vi phạm tiêu chuẩn cộng đồng?")) {
-            alert("Cảm ơn bạn đã báo cáo. Quản trị viên sẽ xem xét!");
+    const handleLike = async (postId) => {
+        if (!userId) return alert("⚠️ Bạn cần đăng nhập!");
+        try {
+            const res = await api.put(`/posts/${postId}/like`, { userId });
+            const updatedLikes = res.data.data;
+
+            setPosts(posts.map(p => p._id === postId ? { ...p, likes: updatedLikes } : p));
+            socket.emit('send_like', { postId, likes: updatedLikes });
+        } catch (error) {
+            console.error("Lỗi thả tim:", error);
         }
+    };
+
+    const toggleComments = (postId) => {
+        setExpandedComments(prev => ({ ...prev, [postId]: !prev[postId] }));
+    };
+
+    const handleCommentSubmit = async (postId) => {
+        if (!userId) return alert("⚠️ Bạn cần đăng nhập!");
+        
+        const text = commentInputs[postId] || '';
+        const cmtImage = commentImages[postId];
+
+        if (!text.trim() && !cmtImage) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('userId', userId);
+            if (text.trim()) formData.append('text', text);
+            if (cmtImage) formData.append('file', cmtImage); 
+
+            const res = await api.post(`/posts/${postId}/comment`, formData);
+            const savedComment = res.data.data;
+
+            setPosts(posts.map(p => {
+                if (p._id === postId) {
+                    return { ...p, comments: [...(p.comments || []), savedComment] };
+                }
+                return p;
+            }));
+
+            socket.emit('send_comment', { postId, newComment: savedComment });
+
+            setCommentInputs({ ...commentInputs, [postId]: '' });
+            setCommentImages({ ...commentImages, [postId]: null });
+            setShowEmojis({ ...showEmojis, [postId]: false });
+
+        } catch (error) {
+            console.error("Lỗi bình luận:", error);
+            alert("Lỗi khi gửi bình luận!");
+        }
+    };
+
+    const handleReport = (postId) => {
+        if(window.confirm("Bạn có chắc chắn muốn báo cáo bài viết này?")) {
+            alert("Đã gửi báo cáo!");
+        }
+    };
+
+    const insertEmoji = (postId, emoji) => {
+        const currentText = commentInputs[postId] || '';
+        setCommentInputs({ ...commentInputs, [postId]: currentText + emoji });
     };
 
     return (
         <div className="home-wrapper" style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-            {/* --- NAVBAR --- */}
             <nav className="navbar" style={navStyle}>
                 <div className="nav-logo" style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a5f7a', cursor: 'pointer' }} onClick={() => navigate('/home')}>
                     📚 HUTECH Library
@@ -123,22 +165,16 @@ const Forum = () => {
                 </div>
 
                 <div className="nav-user" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <span style={{ fontWeight: '500', color: '#333' }}>Xin chào, <span style={{ color: '#1a5f7a', fontWeight: 'bold' }}>{userInfo.fullName || 'Bạn'}</span></span>
+                    <span style={{ fontWeight: '500', color: '#333' }}>Xin chào, <span style={{ color: '#1a5f7a', fontWeight: 'bold' }}>{userInfo.fullName || userInfo?.user?.fullName || 'Bạn'}</span></span>
                     <button onClick={() => {localStorage.clear(); navigate('/')}} style={logoutBtnStyle}>Đăng xuất</button>
                 </div>
             </nav>
 
-            {/* --- NỘI DUNG DIỄN ĐÀN --- */}
-            <div style={{ maxWidth: '680px', margin: '30px auto', padding: '0 15px' }}>
-                <div style={{ textAlign: 'center', padding: '20px', backgroundColor: 'white', borderRadius: '10px', marginBottom: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)'}}>
-                    <h2 style={{ margin: 0, color: '#1a5f7a', fontSize: '26px' }}>💬 Diễn Đàn Trao Đổi</h2>
-                    <p style={{ color: '#666', marginTop: '10px' }}>Nơi sinh viên HUTECH thảo luận, chia sẻ tài liệu và giải đáp thắc mắc.</p>
-                </div>
+            <div style={{ maxWidth: '680px', margin: '30px auto', padding: '0 15px', paddingBottom: '50px' }}>
                 
-                {/* Khu vực tạo bài đăng */}
                 <div style={createPostCardStyle}>
                     <div style={{ display: 'flex', gap: '15px' }}>
-                        <div style={avatarLgStyle}>{userInfo.fullName?.charAt(0) || 'U'}</div>
+                        <div style={avatarLgStyle}>{userInfo.fullName?.charAt(0) || userInfo?.user?.fullName?.charAt(0) || 'U'}</div>
                         <textarea 
                             value={newPost} 
                             onChange={(e) => setNewPost(e.target.value)}
@@ -146,15 +182,23 @@ const Forum = () => {
                             style={textareaStyle}
                         />
                     </div>
-                    <div style={{ borderTop: '1px solid #eee', marginTop: '15px', paddingTop: '15px', display: 'flex', justifyContent: 'flex-end' }}>
-                        <button onClick={handlePost} style={btnStyle} disabled={!newPost.trim()}>🚀 Đăng chủ đề mới</button>
+                    
+                    {imageFile && <div style={{marginLeft: '60px', marginTop: '10px', color: '#28a745', fontSize: '14px', fontWeight: 'bold'}}>📸 Đã đính kèm: {imageFile.name}</div>}
+
+                    <div style={{ borderTop: '1px solid #eee', marginTop: '15px', paddingTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <label style={{cursor: 'pointer', color: '#1877f2', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px'}}>
+                            <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} style={{display: 'none'}} />
+                            🖼️ Thêm Ảnh
+                        </label>
+                        <button onClick={handlePost} style={btnStyle} disabled={!newPost.trim() && !imageFile}>🚀 Đăng chủ đề mới</button>
                     </div>
                 </div>
 
-                {/* Danh sách bài đăng */}
-                {posts.length > 0 ? posts.map(post => (
+                {posts.length > 0 ? posts.map(post => {
+                    const isLikedByMe = post.likes?.includes(userId);
+                    
+                    return (
                     <div key={post._id} style={postCardStyle}>
-                        {/* Header Bài viết */}
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px'}}>
                             <div style={{display: 'flex', alignItems: 'center'}}>
                                 <div style={avatarMdStyle}>{post.sender?.fullName?.charAt(0) || 'A'}</div>
@@ -168,12 +212,18 @@ const Forum = () => {
                             <button onClick={() => handleReport(post._id)} style={reportBtnStyle} title="Báo cáo vi phạm">🚩</button>
                         </div>
                         
-                        {/* Nội dung bài viết */}
-                        <p style={{ fontSize: '15px', lineHeight: '1.5', color: '#1c1e21', marginBottom: '15px', whiteSpace: 'pre-wrap' }}>
-                            {post.content}
-                        </p>
+                        {post.content && (
+                            <p style={{ fontSize: '15px', lineHeight: '1.5', color: '#1c1e21', marginBottom: '15px', whiteSpace: 'pre-wrap' }}>
+                                {post.content}
+                            </p>
+                        )}
+
+                        {post.image && (
+                            <div style={{marginBottom: '15px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #eee'}}>
+                                <img src={`http://localhost:3000${post.image}`} alt="Bài đăng" style={{width: '100%', display: 'block'}} />
+                            </div>
+                        )}
                         
-                        {/* Số đếm Like & Comment */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#65676b', fontSize: '14px', borderBottom: '1px solid #ebedf0', paddingBottom: '10px', marginBottom: '10px' }}>
                             <span>👍 {post.likes?.length || 0} lượt thích</span>
                             <span style={{cursor: 'pointer'}} onClick={() => toggleComments(post._id)}>
@@ -181,37 +231,49 @@ const Forum = () => {
                             </span>
                         </div>
 
-                        {/* Thanh công cụ Tương tác */}
                         <div style={{display: 'flex', justifyContent: 'space-around', gap: '10px', padding: '5px 0'}}>
-                            <button 
-                                onClick={() => handleLike(post._id)} 
-                                style={{...actionBtnStyle, color: post.likes?.includes(userInfo._id) ? '#1877f2' : '#65676b'}}
-                            >
-                                {post.likes?.includes(userInfo._id) ? '👍 Đã thích' : '👍 Thích'}
+                            <button onClick={() => handleLike(post._id)} style={{...actionBtnStyle, color: isLikedByMe ? '#1877f2' : '#65676b'}}>
+                                {isLikedByMe ? '👍 Đã Thích' : '👍 Thích'}
                             </button>
-                            <button onClick={() => toggleComments(post._id)} style={actionBtnStyle}>
-                                💬 Bình luận
-                            </button>
+                            <button onClick={() => toggleComments(post._id)} style={actionBtnStyle}>💬 Bình luận</button>
                         </div>
 
-                        {/* --- KHU VỰC BÌNH LUẬN (Chỉ hiện khi bấm nút) --- */}
+                        {/* --- KHU VỰC BÌNH LUẬN --- */}
                         {expandedComments[post._id] && (
                             <div style={commentSectionStyle}>
-                                {/* Lưới danh sách bình luận (Nơi hiển thị các cmt thật) */}
                                 {post.comments && post.comments.map((cmt, idx) => (
-                                    <div key={idx} style={{display: 'flex', gap: '10px', marginBottom: '12px'}}>
-                                        <div style={{...avatarMdStyle, width: '32px', height: '32px', fontSize: '14px'}}>{cmt.user?.charAt(0) || 'U'}</div>
-                                        <div style={{ backgroundColor: '#f0f2f5', padding: '10px 15px', borderRadius: '15px', maxWidth: '80%' }}>
-                                            <b style={{fontSize: '13px', display: 'block', marginBottom: '3px'}}>{cmt.user || 'Thành viên'}</b>
-                                            <span style={{fontSize: '14px'}}>{cmt.text}</span>
+                                    <div key={idx} style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
+                                        <div style={{...avatarMdStyle, width: '32px', height: '32px', fontSize: '14px'}}>{cmt.user?.fullName?.charAt(0) || 'U'}</div>
+                                        <div style={{ maxWidth: '85%' }}>
+                                            <div style={{ backgroundColor: '#f0f2f5', padding: '8px 12px', borderRadius: '15px', display: 'inline-block' }}>
+                                                <b style={{fontSize: '13px', display: 'block', marginBottom: '3px'}}>{cmt.user?.fullName || 'Thành viên'}</b>
+                                                {cmt.text && <span style={{fontSize: '14px', whiteSpace: 'pre-wrap'}}>{cmt.text}</span>}
+                                            </div>
+                                            {cmt.image && (
+                                                <div style={{marginTop: '5px'}}>
+                                                    <img src={`http://localhost:3000${cmt.image}`} alt="ảnh cmt" style={{maxWidth: '200px', borderRadius: '10px', border: '1px solid #ccc'}}/>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
 
-                                {/* Ô nhập bình luận mới */}
-                                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                                    <div style={{...avatarMdStyle, width: '36px', height: '36px'}}>{userInfo.fullName?.charAt(0)}</div>
+                                {commentImages[post._id] && <div style={{marginLeft: '45px', color: '#28a745', fontSize: '12px', fontWeight: 'bold'}}>📸 Đã chọn: {commentImages[post._id].name}</div>}
+
+                                {showEmojis[post._id] && (
+                                    <div style={{marginLeft: '45px', marginBottom: '5px', background: 'white', border: '1px solid #ddd', padding: '5px', borderRadius: '20px', display: 'inline-flex', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)'}}>
+                                        {EMOJIS.map(emo => (
+                                            <span key={emo} style={{cursor: 'pointer', fontSize: '18px'}} onClick={() => insertEmoji(post._id, emo)}>{emo}</span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '5px', alignItems: 'center' }}>
+                                    <div style={{...avatarMdStyle, width: '36px', height: '36px'}}>{userInfo.fullName?.charAt(0) || 'U'}</div>
                                     <div style={{ display: 'flex', flex: 1, backgroundColor: '#f0f2f5', borderRadius: '20px', padding: '5px 15px', alignItems: 'center' }}>
+                                        
+                                        <span style={{cursor: 'pointer', marginRight: '8px', fontSize: '18px'}} onClick={() => setShowEmojis({...showEmojis, [post._id]: !showEmojis[post._id]})}>😀</span>
+                                        
                                         <input 
                                             type="text" 
                                             placeholder="Viết bình luận của bạn..." 
@@ -220,15 +282,23 @@ const Forum = () => {
                                             style={{ border: 'none', background: 'transparent', outline: 'none', flex: 1, fontSize: '14px' }}
                                             onKeyDown={(e) => { if (e.key === 'Enter') handleCommentSubmit(post._id); }}
                                         />
-                                        <button onClick={() => handleCommentSubmit(post._id)} style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#1877f2', fontWeight: 'bold'}}>Gửi</button>
+                                        
+                                        <label style={{cursor: 'pointer', marginLeft: '10px', fontSize: '18px'}} title="Đính kèm ảnh">
+                                            <input type="file" accept="image/*" onChange={(e) => setCommentImages({...commentImages, [post._id]: e.target.files[0]})} style={{display: 'none'}} />
+                                            📷
+                                        </label>
+
+                                        <button onClick={() => handleCommentSubmit(post._id)} style={{border: 'none', background: 'transparent', cursor: 'pointer', color: '#1877f2', fontWeight: 'bold', marginLeft: '10px'}}>Gửi</button>
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
-                )) : (
-                    <div style={{textAlign: 'center', padding: '50px', backgroundColor: 'white', borderRadius: '10px', color: '#666'}}>
-                        Chưa có chủ đề nào được thảo luận. Hãy là người đầu tiên bóc tem! 🚀
+                );
+                }) : (
+                    <div style={{textAlign: 'center', padding: '50px', backgroundColor: 'white', borderRadius: '10px', color: '#666', boxShadow: '0 2px 5px rgba(0,0,0,0.05)'}}>
+                        <span style={{fontSize: '40px', display: 'block', marginBottom: '15px'}}>🚀</span>
+                        Chưa có chủ đề nào được thảo luận. Hãy là người đầu tiên bóc tem!
                     </div>
                 )}
             </div>
@@ -236,19 +306,16 @@ const Forum = () => {
     );
 };
 
-// ==========================================
-// CÁC OBJECT CSS NỘI TUYẾN 
-// ==========================================
-const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 };
-const linkStyle = { cursor: 'pointer', padding: '8px 12px', borderRadius: '5px', transition: 'background 0.2s' };
+const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100, flexWrap: 'wrap', gap: '10px' };
+const linkStyle = { cursor: 'pointer', padding: '8px 12px', borderRadius: '5px', transition: 'background 0.2s', whiteSpace: 'nowrap' };
 const logoutBtnStyle = { backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' };
 
 const createPostCardStyle = { backgroundColor: '#fff', padding: '20px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', marginBottom: '25px', border: '1px solid #e1e4e8' };
-const textareaStyle = { width: '100%', border: 'none', outline: 'none', resize: 'none', height: '50px', fontSize: '16px', backgroundColor: '#f0f2f5', borderRadius: '25px', padding: '15px 20px', boxSizing: 'border-box' };
-const btnStyle = { backgroundColor: '#1877f2', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' };
+const textareaStyle = { width: '100%', border: 'none', outline: 'none', resize: 'none', height: '60px', fontSize: '16px', backgroundColor: '#f0f2f5', borderRadius: '15px', padding: '15px 20px', boxSizing: 'border-box' };
+const btnStyle = { backgroundColor: '#1877f2', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', transition: '0.2s' };
 
 const postCardStyle = { backgroundColor: '#fff', padding: '20px', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', marginBottom: '20px', border: '1px solid #e1e4e8' };
-const actionBtnStyle = { flex: 1, backgroundColor: 'transparent', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', transition: '0.2s', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' };
+const actionBtnStyle = { flex: 1, backgroundColor: 'transparent', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', transition: '0.2s', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px', color: '#65676b' };
 const reportBtnStyle = { border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '18px', opacity: 0.5, transition: '0.2s' };
 
 const commentSectionStyle = { borderTop: '1px solid #ebedf0', marginTop: '10px', paddingTop: '15px' };
