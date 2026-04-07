@@ -1,3 +1,17 @@
+
+
+var express = require('express');
+var router = express.Router();
+
+/* GET users listing. */
+router.get('/', function(req, res, next) {
+  res.send('respond with a resource');
+});
+
+module.exports = router;
+
+// Đường dẫn file: routes/users.js
+
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/users');
@@ -10,3 +24,4 @@ router.put('/:id', verifyToken, checkRole(['Admin', 'Thủ thư']), userControll
 router.delete('/:id', verifyToken, checkRole(['Admin', 'Thủ thư']), userController.deleteUser);
 
 module.exports = router;
+

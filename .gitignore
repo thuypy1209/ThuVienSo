@@ -59,3 +59,10 @@ typings/
 
 # next.js build output
 .next
+
+
+# Keys - CHẶN CÁC TỆP KHÓA BẢO MẬT
+private.pem
+public.pem
+*.pem
+

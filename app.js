@@ -4,6 +4,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+
+
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+
+// --- 1. THÊM THƯ VIỆN MONGOOSE VÀ KẾT NỐI DATABASE TẠI ĐÂY ---
+
 var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://127.0.0.1:27017/thuvienso')
@@ -32,7 +40,9 @@ var wishlistsRouter = require('./routes/wishlists');
 var notificationsRouter = require('./routes/notifications');
 var cartsRouter = require('./routes/carts');
 var messagesRouter = require('./routes/messages');
+
 var postsRouter = require('./routes/posts');
+
 
 var app = express();
 
@@ -45,6 +55,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+=======
 app.use(cors());
 
 // Đăng ký các đường dẫn (Routes)
@@ -79,5 +94,10 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+console.log("Server đang chạy...");
+module.exports = app;
+
+
 console.log("Server Node.js đang chuẩn bị khởi động...");
 module.exports = app;
+

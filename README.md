@@ -1,14 +1,4 @@
 # ThuVienSo
-
-
-npm i express-generator -g
-npm i express
-express --view=ejs --git 
-(bấm y)
-npm i nodemon
-npm i
-
-viet
 #  Đồ án: Web Thư Viện Số (Backend Node.js)
 
 Dự án phát triển API Backend cho hệ thống quản lý Thư viện số, sử dụng kiến trúc MVC (trả về JSON).
@@ -53,3 +43,4 @@ npm start
 5. đây là ý kiến cá nhân có thể thay đổi hoặc thêm mới
 
 *Lưu ý: Nhóm làm Backend chỉ test bằng Postman và xuất ảnh báo cáo, tuyệt đối không dùng thư mục views (MVC = 0đ theo yêu cầu giảng viên).*
+>>>>>>> origin/dev
