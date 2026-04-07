@@ -18,6 +18,7 @@ const AuthPage = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // ====================== LOGIN ======================
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
@@ -25,6 +26,7 @@ const AuthPage = () => {
                 username: formData.username,
                 password: formData.password
             });
+
             if (res.data.success) {
                 localStorage.setItem('token', res.data.data.token);
                 localStorage.setItem('userInfo', JSON.stringify(res.data.data.userInfo));
@@ -36,40 +38,41 @@ const AuthPage = () => {
         }
     };
 
-    // --- XỬ LÝ ĐĂNG KÝ ---
+    // ====================== REGISTER ======================
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.post('/users', {
+            // ←←← CHỈ THAY ĐỔI ĐƯỜNG DẪN NÀY
+            const res = await api.post('/auth/register', {
                 username: formData.username,
                 password: formData.password,
                 fullName: formData.fullName,
-                email: formData.email,
-                role: "Độc giả"
+                email: formData.email
             });
+
             if (res.data.success) {
-                setMessage("Đăng ký thành công! Mời bạn đăng nhập.");
-                setIsLogin(true);
+                setMessage("✅ Đăng ký thành công! Mời bạn đăng nhập.");
+                setIsLogin(true);        // chuyển sang tab Đăng nhập
+                // reset form
+                setFormData({ username: '', password: '', fullName: '', email: '' });
             }
         } catch (err) {
-            setMessage("" + (err.response?.data?.message || "Lỗi đăng ký"));
+            setMessage("❌ " + (err.response?.data?.message || "Lỗi đăng ký"));
         }
     };
 
     return (
         <div style={{ padding: '50px', maxWidth: '400px', margin: 'auto', textAlign: 'center' }}>
             <h1>{isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ"}</h1>
-            
-            <form onSubmit={isLogin ? handleLogin : handleRegister}>
-                {/* Luôn luôn cần Username & Password */}
-                <input type="text" name="username" placeholder="Tên đăng nhập" onChange={handleChange} required style={inputStyle} />
-                <input type="password" name="password" placeholder="Mật khẩu" onChange={handleChange} required style={inputStyle} />
 
-                {/* Nếu là Đăng ký thì hiện thêm Họ tên & Email */}
+            <form onSubmit={isLogin ? handleLogin : handleRegister}>
+                <input type="text" name="username" placeholder="Tên đăng nhập" value={formData.username} onChange={handleChange} required style={inputStyle} />
+                <input type="password" name="password" placeholder="Mật khẩu" value={formData.password} onChange={handleChange} required style={inputStyle} />
+
                 {!isLogin && (
                     <>
-                        <input type="text" name="fullName" placeholder="Họ và tên" onChange={handleChange} required style={inputStyle} />
-                        <input type="email" name="email" placeholder="Email" onChange={handleChange} required style={inputStyle} />
+                        <input type="text" name="fullName" placeholder="Họ và tên" value={formData.fullName} onChange={handleChange} required style={inputStyle} />
+                        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required style={inputStyle} />
                     </>
                 )}
 

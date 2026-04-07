@@ -1,30 +1,22 @@
-// Đường dẫn file: controllers/books.js
 const BookModel = require('../schemas/books');
 
-// 1. Lấy danh sách Sách (Có nối bảng Category)
 const getAllBooks = async (req, res) => {
     try {
-        const books = await BookModel.find({}).populate('category', 'name description');
+        const filter = {};
+
+        if (req.query.authorId) {
+            filter.author = req.query.authorId;
+        }
+
+        const books = await BookModel.find(filter)
+            .populate('category', 'name description')
+            .populate('author', 'name'); // Nối bảng để lấy tên tác giả
         res.status(200).json({ success: true, message: "Lấy danh sách sách thành công", data: books });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// === HÀM MỚI: LẤY 1 CUỐN SÁCH THEO ID ===
-const getBookById = async (req, res) => {
-    try {
-        const book = await BookModel.findById(req.params.id).populate('category', 'name description');
-        if (!book) {
-            return res.status(404).json({ success: false, message: "Không tìm thấy sách" });
-        }
-        res.status(200).json({ success: true, data: book });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// 2. Tạo Sách mới
 const createBook = async (req, res) => {
     try {
         const newBook = new BookModel(req.body);
@@ -35,7 +27,6 @@ const createBook = async (req, res) => {
     }
 };
 
-// 3. Cập nhật Sách
 const updateBook = async (req, res) => {
     try {
         const bookId = req.params.id;
@@ -47,7 +38,6 @@ const updateBook = async (req, res) => {
     }
 };
 
-// 4. Xóa Sách
 const deleteBook = async (req, res) => {
     try {
         const bookId = req.params.id;
@@ -59,10 +49,22 @@ const deleteBook = async (req, res) => {
     }
 };
 
-module.exports = { 
-    getAllBooks, 
-    getBookById,
-    createBook, 
-    updateBook, 
-    deleteBook 
+
+
+
+
+const getBookById = async (req, res) => {
+    try {
+        const bookId = req.params.id;
+        const book = await BookModel.findById(bookId).populate('category', 'name');
+        
+        if (!book) return res.status(404).json({ success: false, message: "Không tìm thấy sách" });
+        
+        res.status(200).json({ success: true, message: "Lấy chi tiết sách thành công", data: book });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
+
+
+module.exports = { getAllBooks, createBook, updateBook, deleteBook, getBookById };

@@ -1,38 +1,22 @@
-// Đường dẫn file: controllers/auth.js
 const UserModel = require('../schemas/users');
 const jwt = require('jsonwebtoken');
-
-// Chìa khóa bí mật để tạo Thẻ bài (Bạn có thể đổi thành bất cứ chữ gì)
-// Thực tế người ta sẽ giấu cái này vào file .env, nhưng đồ án thì để đây cho dễ chạy
-const SECRET_KEY = "ThuVienSo_Hutech_Secret"; 
+const fs = require('fs');
+const bcrypt = require('bcrypt');
+const privateKey = fs.readFileSync('./private.pem', 'utf8');
 
 const login = async (req, res) => {
     try {
         const { username, password } = req.body;
+        const user = await UserModel.findOne({ username });
 
-        // 1. Tìm xem user có tồn tại trong database không
-        const user = await UserModel.findOne({ username: username });
-        if (!user) {
-            return res.status(404).json({ success: false, message: "Sai tên đăng nhập!" });
-        }
+        if (!user) return res.status(404).json({ success: false, message: "Sai tên đăng nhập!" });
 
-        // 2. Kiểm tra mật khẩu 
-        // (Lưu ý: Đồ án hiện tại đang lưu pass dạng text thường. Thực tế sẽ dùng bcrypt để băm mật khẩu)
-        if (user.password !== password) {
-            return res.status(401).json({ success: false, message: "Sai mật khẩu!" });
-        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(401).json({ success: false, message: "Sai mật khẩu!" });
 
-        // 3. Tạo "Thẻ bài" (JWT Token)
-        // Gói thông tin của user vào token (id và role)
-        const payload = {
-            id: user._id,
-            role: user.role
-        };
+        const payload = { id: user._id, role: user.role };
+        const token = jwt.sign(payload, privateKey, { algorithm: 'RS256', expiresIn: '1d' });
 
-        // Ký tạo token với hạn sử dụng là 1 ngày (1d)
-        const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1d' });
-
-        // 4. Trả về cho Frontend
         res.status(200).json({
             success: true,
             message: "Đăng nhập thành công!",
@@ -43,13 +27,36 @@ const login = async (req, res) => {
                     fullName: user.fullName,
                     role: user.role
                 },
-                token: token // Đây chính là cái thẻ bài
+                token
             }
         });
-
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-module.exports = { login };
+const register = async (req, res) => {
+    try {
+        const { username, password, fullName, email } = req.body;
+
+        const newUser = new UserModel({
+            username,
+            password,
+            fullName,
+            email,
+            role: 'Độc giả'
+        });
+
+        const savedUser = await newUser.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Đăng ký thành công! Mời bạn đăng nhập.",
+            data: savedUser
+        });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+module.exports = { login, register };

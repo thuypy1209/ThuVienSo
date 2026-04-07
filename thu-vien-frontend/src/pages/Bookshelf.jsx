@@ -7,7 +7,10 @@ const Bookshelf = () => {
     const navigate = useNavigate();
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userRatings, setUserRatings] = useState({}); 
+    
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = userInfo?._id || userInfo?.id || userInfo?.user?._id || userInfo?.data?._id;
 
     useEffect(() => {
         const fetchEbooks = async () => {
@@ -23,33 +26,34 @@ const Bookshelf = () => {
         fetchEbooks();
     }, []);
 
-    // --- API 1: THÊM VÀO YÊU THÍCH (WISHLIST) ---
     const handleWishlist = async (bookId) => {
+        if (!userId) return alert("⚠️ Ní chưa đăng nhập!");
         try {
-            await api.post('/wishlists', { book: bookId });
+            await api.post('/wishlists', { book: bookId, user: userId }); 
             alert("❤️ Đã thêm vào tủ sách yêu thích!");
         } catch (error) {
-            alert("Cuốn này ní đã thả tim rồi!");
+            alert(error.response?.data?.message || "❌ Lỗi Server!");
         }
     };
 
-    // --- API 2: THÊM VÀO GIỎ SÁCH (CART) ---
     const handleAddToCart = async (bookId) => {
+        if (!userId) return alert("⚠️ Ní chưa đăng nhập!");
         try {
-            await api.post('/carts', { book: bookId });
+            await api.post('/carts', { book: bookId, user: userId }); 
             alert("🛒 Đã thêm vào giỏ sách chờ mượn!");
         } catch (error) {
-            alert("Sách đã có trong giỏ rồi ní ơi!");
+            alert(error.response?.data?.message || "❌ Lỗi Server!");
         }
     };
 
-    // --- API 3: GỬI ĐÁNH GIÁ 5 SAO (REVIEWS) ---
     const handleRate = async (bookId, rating) => {
+        if (!userId) return alert("⚠️ Ní chưa đăng nhập!");
         try {
-            await api.post('/reviews', { book: bookId, rating, comment: "Đánh giá từ tủ sách" });
+            await api.post('/reviews', { book: bookId, rating, comment: "Đánh giá từ tủ sách", user: userId }); 
+            setUserRatings(prev => ({ ...prev, [bookId]: rating }));
             alert(`⭐ Đã gửi đánh giá ${rating} sao cho cuốn sách này!`);
         } catch (error) {
-            alert("Ní đã đánh giá cuốn này rồi hoặc có lỗi xảy ra!");
+            alert(error.response?.data?.message || "❌ Lỗi Server: Đánh giá thất bại!");
         }
     };
 
@@ -58,6 +62,7 @@ const Bookshelf = () => {
             <nav className="navbar" style={navStyle}>
                 <b style={{ fontSize: '24px', color: '#1a5f7a', cursor: 'pointer' }} onClick={() => navigate('/home')}>📚 HUTECH Library</b>
                 <div className="nav-links">
+                    <span onClick={() => navigate('/admin/add-book')} style={{cursor: 'pointer', fontWeight: 'bold', color: '#e67e22', marginRight: '15px'}}>⚙️ Quản lý Sách</span>
                     <span onClick={() => navigate('/home')} style={{cursor: 'pointer', fontWeight: 'bold'}}>🏠 Về Trang Chủ</span>
                 </div>
             </nav>
@@ -68,39 +73,47 @@ const Bookshelf = () => {
 
                 {loading ? <div className="loader">Đang mở kho sách...</div> : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '30px' }}>
-                        {books.map(book => (
-                            <div key={book._id} style={shelfCardStyle}>
-                                <div style={imgContainerStyle}>
-                                    <img src={book.coverImage || "https://via.placeholder.com/200x280"} alt={book.title} style={bookImgStyle} />
-                                    <div className="shelf-overlay" style={shelfOverlayStyle}>
-                                        <button onClick={() => navigate(`/doc-sach/${book._id}`)} style={readNowBtnStyle}>📖 ĐỌC NGAY</button>
-                                    </div>
-                                </div>
+                        {books.map(book => {
+                            const currentStars = userRatings[book._id] || book.averageRating || 0;
+                            
+                            // ĐÃ SỬA: Nối thêm localhost:3000 vào trước link ảnh để nó hiện lên
+                            const imageUrl = book.coverImage ? `http://localhost:3000${book.coverImage}` : "https://placehold.co/200x280?text=Sách+HUTECH";
 
-                                <div style={{ padding: '15px' }}>
-                                    <h4 style={bookTitleStyle} title={book.title}>{book.title}</h4>
-                                    
-                                    {/* PHẦN ĐÁNH GIÁ 5 SAO NHANH */}
-                                    <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center', gap: '5px' }}>
-                                        {[1, 2, 3, 4, 5].map(star => (
-                                            <span 
-                                                key={star} 
-                                                onClick={() => handleRate(book._id, star)}
-                                                style={{ cursor: 'pointer', fontSize: '20px', color: '#f39c12' }}
-                                            >
-                                                ☆
-                                            </span>
-                                        ))}
+                            return (
+                                <div key={book._id} style={shelfCardStyle}>
+                                    <div style={imgContainerStyle}>
+                                        <img src={imageUrl} alt={book.title} style={bookImgStyle} />
                                     </div>
 
-                                    {/* CỤM NÚT TƯƠNG TÁC */}
-                                    <div style={{ display: 'flex', gap: '10px' }}>
-                                        <button onClick={() => handleWishlist(book._id)} style={wishBtnStyle}>❤️ Yêu thích</button>
-                                        <button onClick={() => handleAddToCart(book._id)} style={cartBtnStyle}>🛒 Mượn sách</button>
+                                    <div style={{ padding: '15px' }}>
+                                        <h4 style={bookTitleStyle} title={book.title}>{book.title}</h4>
+                                        <p style={{textAlign: 'center', color: '#666', fontSize: '14px', margin: '0 0 10px 0'}}>✍️ {book.author}</p>
+                                        
+                                        <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center', gap: '5px' }}>
+                                            {[1, 2, 3, 4, 5].map(star => (
+                                                <span 
+                                                    key={star} 
+                                                    onClick={() => handleRate(book._id, star)}
+                                                    style={{ cursor: 'pointer', fontSize: '24px', color: star <= currentStars ? '#f39c12' : '#ccc', transition: '0.2s' }}
+                                                >
+                                                    {star <= currentStars ? '★' : '☆'}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        {/* ĐÃ SỬA: Đưa nút Đọc Ngay xuống đây cho dễ bấm */}
+                                        <button onClick={() => navigate(`/doc-sach/${book._id}`)} style={readNowBtnStyle}>
+                                            📖 ĐỌC NGAY PDF
+                                        </button>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                                            <button onClick={() => handleWishlist(book._id)} style={wishBtnStyle}>❤️ Yêu thích</button>
+                                            <button onClick={() => handleAddToCart(book._id)} style={cartBtnStyle}>🛒 Mượn sách</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -108,14 +121,13 @@ const Bookshelf = () => {
     );
 };
 
-// --- CSS Nội tuyến (Việt có thể tách ra file CSS sau) ---
+// --- CSS Nội tuyến ---
 const navStyle = { display: 'flex', justifyContent: 'space-between', padding: '15px 40px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 };
 const shelfCardStyle = { background: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 8px 20px rgba(0,0,0,0.06)', transition: '0.3s' };
-const imgContainerStyle = { position: 'relative', height: '320px', overflow: 'hidden' };
+const imgContainerStyle = { height: '300px', overflow: 'hidden', borderBottom: '1px solid #eee' };
 const bookImgStyle = { width: '100%', height: '100%', objectFit: 'cover' };
-const shelfOverlayStyle = { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(26, 95, 122, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0, transition: '0.3s' };
-const readNowBtnStyle = { background: 'white', color: '#1a5f7a', border: 'none', padding: '12px 25px', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer' };
-const bookTitleStyle = { margin: '0 0 10px 0', fontSize: '17px', textAlign: 'center', color: '#333', fontWeight: '700' };
+const readNowBtnStyle = { width: '100%', background: '#1a5f7a', color: 'white', border: 'none', padding: '10px 0', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' };
+const bookTitleStyle = { margin: '0 0 5px 0', fontSize: '17px', textAlign: 'center', color: '#333', fontWeight: '700' };
 const wishBtnStyle = { flex: 1, background: '#fff0f0', color: '#e74c3c', border: '1px solid #ffcccc', padding: '8px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' };
 const cartBtnStyle = { flex: 1, background: '#eef6ff', color: '#3498db', border: '1px solid #d0e7ff', padding: '8px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' };
 

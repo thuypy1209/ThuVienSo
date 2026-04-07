@@ -6,23 +6,28 @@ import '../css/Home.css';
 const Notifications = () => {
     const navigate = useNavigate();
     const [notifs, setNotifs] = useState([]);
-    const [filter, setFilter] = useState('all'); // 'all', 'unread', 'dueDate', 'newBook'
+    const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
+    
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = userInfo?._id || userInfo?.id || userInfo?.user?._id || userInfo?.data?._id;
 
     useEffect(() => {
         const fetchNotifs = async () => {
+            if (!userId) {
+                console.error("Không tìm thấy ID người dùng!");
+                setLoading(false);
+                return;
+            }
+
             try {
-                // Giả lập dữ liệu mồi nếu API trống để test giao diện
-                // Trong thực tế, xoá phần dummyData này đi và dùng res.data.data
                 const dummyData = [
                     { _id: '1', title: 'Sách mới: Lập trình ReactJS', message: 'Hệ thống vừa cập nhật cuốn sách "Lập trình ReactJS từ số 0". Vào xem ngay!', type: 'newBook', isRead: false, createdAt: new Date() },
                     { _id: '2', title: 'Sắp đến hạn trả sách', message: 'Cuốn "Clean Code" của bạn sẽ hết hạn vào ngày mai. Vui lòng trả sách đúng hạn.', type: 'dueDate', isRead: false, createdAt: new Date(Date.now() - 86400000) },
                     { _id: '3', title: 'Mượn sách thành công', message: 'Bạn đã mượn thành công cuốn "Design Patterns".', type: 'system', isRead: true, createdAt: new Date(Date.now() - 172800000) },
                 ];
 
-                const res = await api.get('/notifications');
-                // Nếu API chưa có data, xài tạm dummyData để test giao diện
+                const res = await api.get(`/notifications/${userId}`);
                 setNotifs(res.data.data?.length > 0 ? res.data.data : dummyData);
             } catch (err) {
                 console.error("Lỗi lấy thông báo:", err);
@@ -31,11 +36,10 @@ const Notifications = () => {
             }
         };
         fetchNotifs();
-    }, []);
+    }, [userId]);
 
     const markAsRead = async (id) => {
         try {
-            // await api.put(`/notifications/${id}/read`);
             setNotifs(notifs.map(n => n._id === id ? { ...n, isRead: true } : n));
         } catch (error) {
             console.error("Lỗi cập nhật", error);
@@ -44,7 +48,6 @@ const Notifications = () => {
 
     const markAllAsRead = async () => {
         try {
-            // await api.put(`/notifications/read-all`);
             setNotifs(notifs.map(n => ({ ...n, isRead: true })));
             alert("Đã đánh dấu tất cả là đã đọc!");
         } catch (error) {
@@ -52,27 +55,24 @@ const Notifications = () => {
         }
     }
 
-    // Lọc thông báo dựa trên Tab đang chọn
     const filteredNotifs = notifs.filter(notif => {
         if (filter === 'unread') return !notif.isRead;
         if (filter === 'dueDate') return notif.type === 'dueDate';
         if (filter === 'newBook') return notif.type === 'newBook';
-        return true; // 'all'
+        return true; 
     });
 
-    // Hàm lấy Icon và Màu sắc tùy theo loại thông báo
     const getNotifStyle = (type) => {
         switch(type) {
-            case 'dueDate': return { icon: '⏰', color: '#e74c3c', bg: '#ffebee' }; // Đỏ (Hạn trả)
-            case 'newBook': return { icon: '🆕', color: '#28a745', bg: '#e6f4ea' }; // Xanh lá (Sách mới)
-            case 'system': return { icon: '⚙️', color: '#6c757d', bg: '#f8f9fa' }; // Xám (Hệ thống)
-            default: return { icon: '🔔', color: '#007bff', bg: '#e6f2ff' }; // Xanh dương (Chung)
+            case 'dueDate': return { icon: '⏰', color: '#e74c3c', bg: '#ffebee' };
+            case 'newBook': return { icon: '🆕', color: '#28a745', bg: '#e6f4ea' };
+            case 'system': return { icon: '⚙️', color: '#6c757d', bg: '#f8f9fa' };
+            default: return { icon: '🔔', color: '#007bff', bg: '#e6f2ff' };
         }
     };
 
     return (
         <div className="home-wrapper" style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', paddingBottom: '50px' }}>
-            {/* --- NAVBAR --- */}
             <nav className="navbar" style={navStyle}>
                 <div className="nav-logo" style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a5f7a', cursor: 'pointer' }} onClick={() => navigate('/home')}>
                     📚 HUTECH Library
@@ -88,7 +88,7 @@ const Notifications = () => {
                     <span style={{...linkStyle, color: '#1a5f7a', fontWeight: 'bold'}} onClick={() => navigate('/notifications')}>🔔 Thông báo</span>
                 </div>
                 <div className="nav-user" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <span style={{ fontWeight: '500', color: '#333' }}>Xin chào, <span style={{ color: '#1a5f7a', fontWeight: 'bold' }}>{userInfo.fullName || 'Bạn'}</span></span>
+                    <span style={{ fontWeight: '500', color: '#333' }}>Xin chào, <span style={{ color: '#1a5f7a', fontWeight: 'bold' }}>{userInfo.fullName || userInfo?.user?.fullName || 'Bạn'}</span></span>
                     <button onClick={() => {localStorage.clear(); navigate('/')}} style={logoutBtnStyle}>Đăng xuất</button>
                 </div>
             </nav>
@@ -101,7 +101,6 @@ const Notifications = () => {
                     </button>
                 </div>
 
-                {/* THANH TAB LỌC */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', overflowX: 'auto', paddingBottom: '10px' }}>
                     <button style={filter === 'all' ? activeTabStyle : tabStyle} onClick={() => setFilter('all')}>Tất cả</button>
                     <button style={filter === 'unread' ? activeTabStyle : tabStyle} onClick={() => setFilter('unread')}>Chưa đọc ({notifs.filter(n => !n.isRead).length})</button>
@@ -109,7 +108,6 @@ const Notifications = () => {
                     <button style={filter === 'newBook' ? activeTabStyle : tabStyle} onClick={() => setFilter('newBook')}>🆕 Sách mới</button>
                 </div>
 
-                {/* DANH SÁCH THÔNG BÁO */}
                 {loading ? <div style={{textAlign: 'center', padding: '50px', color: '#666'}}>⏳ Đang tải thông báo...</div> : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {filteredNotifs.length > 0 ? filteredNotifs.map(notif => {
@@ -163,7 +161,6 @@ const Notifications = () => {
     );
 };
 
-// --- CSS NỘI TUYẾN ---
 const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 100 };
 const linkStyle = { cursor: 'pointer', padding: '8px 12px', borderRadius: '5px', transition: 'background 0.2s' };
 const logoutBtnStyle = { backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' };
