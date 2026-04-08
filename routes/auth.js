@@ -6,24 +6,33 @@ let {CheckLogin} = require('../utils/authHandler')
 let {ChangePasswordValidator} = require('../utils/validator')
 //login
 router.post('/login',async function (req, res, next) {
-    let { username, password } = req.body;
-    let result = await userController.QueryLogin(username,password);
-    if(!result){
-        res.status(404).send("thong tin dang nhap khong dung")
-    }else{
-        res.send(result)
+    try{
+        let { username, password } = req.body;
+        let result = await userController.QueryLogin(username,password);
+        if(!result){
+            return res.status(404).send("thong tin dang nhap khong dung")
+        }
+        return res.status(200).json({
+                token: result.token,
+                user: result.user
+        });
+    }catch(err){
+        return res.status(500).send({ message: err.message });
     }
-    
 })
 router.post('/register', RegisterValidator, validatedResult, async function (req, res, next) {
     let { username, password, email } = req.body;
     let newUser = await userController.CreateAnUser(
         username, password, email, '69b6231b3de61addb401ea26'
     )
-    res.send(newUser)
+    res.status(201).json(newUser);
 })
 router.get('/me',CheckLogin,function(req,res,next){
-    res.send(req.user)
+    try {
+        return res.status(200).json(req.user);
+    } catch (error) {
+        return res.status(500).json({ message: "Lỗi lấy thông tin cá nhân" });
+    }
 })
 
 //register
@@ -36,12 +45,12 @@ router.post('/change-password', CheckLogin, ChangePasswordValidator, validatedRe
             req.body.newPassword
         );
         if (result.success) {
-            res.send(result);
+            return res.send(result);
         } else {
-            res.status(400).send(result);
+            return res.status(400).send(result);
         }
     } catch (err) {
-        res.status(500).send({ message: err.message });
+        return res.status(500).send({ message: err.message });
     }
 });
 
