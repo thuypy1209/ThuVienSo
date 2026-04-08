@@ -1,4 +1,5 @@
-let mongoose = require('mongoose');                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    const mongoose = require('mongoose');
+let mongoose = require("mongoose");
+
 let postSchema = new mongoose.Schema({
     sender: { 
         type: mongoose.Schema.Types.ObjectId, 
