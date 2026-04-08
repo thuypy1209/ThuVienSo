@@ -1,46 +1,46 @@
-// Đường dẫn file: controllers/reviews.js
+// File: controllers/reviews.js
 let ReviewModel = require('../schemas/reviews');
 
 module.exports = {
-    getAllReviews: async (req, res) => {
+    // 1. Lấy tất cả đánh giá trên hệ thống
+    GetAll: async function () {
+        return await ReviewModel.find({})
+            .populate('user', 'fullName')
+            .populate('book', 'title');
+    },
+
+    // 2. Lấy chi tiết 1 đánh giá
+    GetById: async function (id) {
         try {
-            // Dùng populate để lấy luôn tên User và tên Sách cho dễ nhìn
-            const reviews = await ReviewModel.find({})
+            return await ReviewModel.findById(id)
                 .populate('user', 'fullName')
                 .populate('book', 'title');
-            res.status(200).json({ success: true, data: reviews });
         } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+            return false;
         }
     },
 
-    createReview: async (req, res) => {
-        try {
-            const newReview = new ReviewModel(req.body);
-            const savedReview = await newReview.save();
-            res.status(201).json({ success: true, message: "Đánh giá thành công", data: savedReview });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
+    // 3. (MỚI) Lấy toàn bộ đánh giá của 1 cuốn sách (Xếp mới nhất lên đầu)
+    GetByBook: async function (bookId) {
+        return await ReviewModel.find({ book: bookId })
+            .populate('user', 'fullName')
+            .sort({ createdAt: -1 }); 
     },
 
-    updateReview: async (req, res) => {
-        try {
-            const updatedReview = await ReviewModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedReview) return res.status(404).json({ success: false, message: "Không tìm thấy đánh giá" });
-            res.status(200).json({ success: true, message: "Cập nhật thành công", data: updatedReview });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
+    // 4. Viết đánh giá (Chỉ nhận data)
+    Create: async function (data) {
+        let newReview = new ReviewModel(data);
+        await newReview.save();
+        return newReview;
     },
 
-    deleteReview: async (req, res) => {
-        try {
-            const deletedReview = await ReviewModel.findByIdAndDelete(req.params.id);
-            if (!deletedReview) return res.status(404).json({ success: false, message: "Không tìm thấy để xóa" });
-            res.status(200).json({ success: true, message: "Xóa thành công" });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
+    // 5. Sửa đánh giá
+    Update: async function (id, data) {
+        return await ReviewModel.findByIdAndUpdate(id, data, { new: true });
+    },
+
+    // 6. Xóa đánh giá
+    Delete: async function (id) {
+        return await ReviewModel.findByIdAndDelete(id);
     }
 };

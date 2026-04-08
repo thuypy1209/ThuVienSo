@@ -30,11 +30,13 @@ let privateKey = fs.readFileSync('private.pem');
 
 module.exports = {
     CreateAnUser: async function (username, password, email, role, fullName, avatarUrl, status, loginCount) {
+        let salt = bcrypt.genSaltSync(10);
+        let hashPassword = bcrypt.hashSync(password, salt);
         let newItem = new userModel({
             username: username,
-            password: password,
+            password: hashPassword,
             email: email,
-            fullName: fullName,
+            fullName: fullName|| username,
             avatarUrl: avatarUrl,
             status: status,
             role: role,
@@ -65,15 +67,28 @@ module.exports = {
         let user = await userModel.findOne({
             username: username,
             isDeleted: false
-        })
+        }).populate('role');
         if (user) {
             if (bcrypt.compareSync(password, user.password)) {
-                return jwt.sign({ 
-                    id: user.id },
-                    privateKey, { 
+                const token = jwt.sign(
+                { 
+                    id: user._id,
+                    role: user.role?.name 
+                }, // Thêm role vào payload cho bảo mật
+                privateKey, 
+                { 
                     algorithm: 'RS256', 
                     expiresIn: '1d' 
-                });
+                }
+            );
+            return {
+                token: token,
+                user: {
+                    username: user.username,
+                    fullName: user.fullName || user.username,
+                    role: user.role?.name || 'user',
+                }
+            };
             } else {
                 return false;
             }
