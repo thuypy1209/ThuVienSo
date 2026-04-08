@@ -1,43 +1,35 @@
+// File: controllers/ebookFiles.js
 let EbookFileModel = require('../schemas/ebookFiles');
 
 module.exports = {
-    getAllEbooks: async (req, res) => {
+    // 1. Lấy danh sách file Ebook (có kèm tên sách)
+    GetAllE: async function () { 
+        return await EbookFileModel.find({}).populate('book', 'title'); 
+    },
+
+    // 2. Lấy chi tiết 1 file Ebook (Tặng thêm cho bạn để đủ bộ)
+    GetById: async function (id) {
         try {
-            const ebooks = await EbookFileModel.find({}).populate('book', 'title');
-            res.status(200).json({ success: true, data: ebooks });
+            return await EbookFileModel.findById(id).populate('book', 'title');
         } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+            return false;
         }
     },
 
-    createEbook: async (req, res) => {
-        try {
-            const newEbook = new EbookFileModel(req.body);
-            const savedEbook = await newEbook.save();
-            res.status(201).json({ success: true, message: "Thêm file sách thành công", data: savedEbook });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
+    // 3. Thêm file sách (Chỉ nhận data)
+    Create: async function (data) {
+        let newEbook = new EbookFileModel(data);
+        await newEbook.save();
+        return newEbook;
     },
 
-    updateEbook: async (req, res) => {
-        try {
-            const updatedEbook = await EbookFileModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedEbook) return res.status(404).json({ success: false, message: "Không tìm thấy file" });
-            res.status(200).json({ success: true, message: "Cập nhật file thành công", data: updatedEbook });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
+    // 4. Cập nhật file
+    Update: async function (id, data) { 
+        return await EbookFileModel.findByIdAndUpdate(id, data, { new: true }); 
     },
 
-    deleteEbook: async (req, res) => {
-        try {
-            const deletedEbook = await EbookFileModel.findByIdAndDelete(req.params.id);
-            if (!deletedEbook) return res.status(404).json({ success: false, message: "Không tìm thấy để xóa" });
-            res.status(200).json({ success: true, message: "Xóa file thành công" });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
+    // 5. Xóa file
+    Delete: async function (id) { 
+        return await EbookFileModel.findByIdAndDelete(id); 
     }
-
 };
