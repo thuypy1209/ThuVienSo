@@ -4,31 +4,33 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../css/FavoritesPage.css';
 import '../css/HomePage.css'; 
 import '../css/BookPage.css'; 
-// Nếu ní để CSS của thanh tìm kiếm ở App.css thì nhớ import nó vào nhé!
 import bannerImg from '../assets/library-bg.jpg';
-
-// 🎯 Email dùng để test 
-const USER_EMAIL = "viet@gmail.com";
+import axiosClient from '../api/axiosClient'; // ✅ Dùng hàng hiệu axiosClient
 
 const FavoritesPage = () => {
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState([]); 
   const [loading, setLoading] = useState(false);
 
-  // --- 1. THÊM CÁC BIẾN CHO THANH TÌM KIẾM ---
+  // Lấy thông tin user từ localStorage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterAuthor, setFilterAuthor] = useState('');
-  const [filterPublisher, setFilterPublisher] = useState('');
-  const [filterLanguage, setFilterLanguage] = useState('');
 
-  // 2. GỌI API LẤY DANH SÁCH YÊU THÍCH
+  // 1. GỌI API LẤY DANH SÁCH YÊU THÍCH (WISHList)
   const fetchFavorites = async () => {
+    if (!user._id) {
+        navigate('/login');
+        return;
+    }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/favorites/danhsach?email=${USER_EMAIL}`);
-      const data = await response.json();
-      setFavorites(data || []);
+      // Gọi đúng API Backend Node: /wishlists/user/:userId
+      const res = await axiosClient.get(`/wishlists/user/${user._id}`);
+      // Backend return data trực tiếp nhờ interceptor
+      setFavorites(res.data || res || []);
     } catch (err) {
       console.error("Lỗi lấy danh sách yêu thích:", err);
     } finally {
@@ -40,42 +42,34 @@ const FavoritesPage = () => {
     fetchFavorites();
   }, []);
 
-  // --- 3. TẠO DANH SÁCH DROPDOWN TỰ ĐỘNG (Lấy từ kho sách yêu thích) ---
+  // 2. TẠO DANH SÁCH DROPDOWN TỰ ĐỘNG
   const uniqueAuthors = [...new Set(favorites.map(fav => fav.book?.author).filter(Boolean))];
   const uniqueCategories = [...new Set(favorites.map(fav => fav.book?.category).filter(Boolean))];
-  const uniquePublishers = [...new Set(favorites.map(fav => fav.book?.publisher).filter(Boolean))];
-  const uniqueLanguages = [...new Set(favorites.map(fav => fav.book?.language).filter(Boolean))];
 
-  // --- 4. HÀM LỌC SÁCH YÊU THÍCH ---
+  // 3. HÀM LỌC SÁCH
   const filteredFavorites = favorites.filter(fav => {
     const book = fav.book;
     if (!book) return false;
 
-    const matchSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const matchSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchAuthor = filterAuthor === '' || book.author === filterAuthor;
     const matchCategory = filterCategory === '' || book.category === filterCategory;
-    const matchPublisher = filterPublisher === '' || book.publisher === filterPublisher;
-    const matchLanguage = filterLanguage === '' || book.language === filterLanguage;
 
-    return matchSearch && matchAuthor && matchCategory && matchPublisher && matchLanguage;
+    return matchSearch && matchAuthor && matchCategory;
   });
 
-  // 5. HÀM XÓA SÁCH KHỎI DANH SÁCH YÊU THÍCH
-  const handleRemoveFavorite = async (bookId) => {
+  // 4. HÀM XÓA KHỎI DANH SÁCH YÊU THÍCH
+  const handleRemoveFavorite = async (wishlistId) => {
     if(!window.confirm("Ní có chắc muốn bỏ thả tim cuốn sách này không?")) return;
     
     try {
-      const response = await fetch('http://localhost:8080/api/favorites/toggle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: USER_EMAIL, bookId: bookId })
-      });
-
-      if (response.ok) {
-        setFavorites(favorites.filter(fav => fav.book.id !== bookId));
-      }
+      // Ở Backend Node, ta xóa theo ID của bản ghi wishlist
+      await axiosClient.delete(`/wishlists/${wishlistId}`);
+      // Cập nhật lại giao diện ngay lập tức
+      setFavorites(favorites.filter(fav => fav._id !== wishlistId));
     } catch (err) {
       console.error("Lỗi khi xóa yêu thích:", err);
+      alert("Không thể bỏ yêu thích lúc này, ní thử lại sau nhé!");
     }
   };
 
@@ -92,37 +86,28 @@ const FavoritesPage = () => {
           <Link to="/history">Lịch sử đọc</Link>
         </nav>
         <div className="header-actions">
-          <div className="user-profile" onClick={() => navigate('/')}>
-            <div className="user-avatar">👤</div><span>Ní Việt</span>
+          <div className="user-profile" onClick={() => navigate('/home')}>
+            <div className="user-avatar">👤</div>
+            <span>{user.fullName || "Thành viên"}</span>
           </div>
         </div>
       </header>
 
-     {/* --- BANNER TÌM KIẾM (ĐÃ FIX DẸP LÉP & HẾT ÁM TÍM) --- */}
       <section 
         className="book-banner"
         style={{ 
           backgroundImage: `url(${bannerImg})`, 
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
           padding: '50px 20px' 
         }}
       >
-        <div className="breadcrumb" style={{ color: 'white', marginBottom: '20px', textAlign: 'center' }}>
-          Trang chủ &gt; Sách yêu thích
-        </div>
-        
         <div className="search-wrapper">
           <input 
             type="text" 
-            placeholder="Tìm kiếm trong kho báu của bạn..." 
+            placeholder="Tìm trong kho báu của ní..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="filter-btn-text">
-            <span>⚲</span> Bộ lọc tìm kiếm
-          </button>
           <button className="search-btn-icon">🔍</button>
         </div>
 
@@ -142,48 +127,25 @@ const FavoritesPage = () => {
             </select>
             <button className="clear-select-btn" onClick={() => setFilterAuthor('')}>✕</button>
           </div>
-
-          <div className="select-container">
-            <select value={filterPublisher} onChange={(e) => setFilterPublisher(e.target.value)} className="filter-select">
-              <option value="">Chọn nhà xuất bản</option>
-              {uniquePublishers.map((p, i) => <option key={i} value={p}>{p}</option>)}
-            </select>
-            <button className="clear-select-btn" onClick={() => setFilterPublisher('')}>✕</button>
-          </div>
-
-          <div className="select-container">
-            <select value={filterLanguage} onChange={(e) => setFilterLanguage(e.target.value)} className="filter-select">
-              <option value="">Chọn ngôn ngữ</option>
-              {uniqueLanguages.map((l, i) => <option key={i} value={l}>{l}</option>)}
-            </select>
-            <button className="clear-select-btn" onClick={() => setFilterLanguage('')}>✕</button>
-          </div>
         </div>
-      </section>
-
-      {/* --- TAGS GỢI Ý & TIÊU ĐỀ ẤN PHẨM --- */}
-      <section className="quick-tags-section">
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>THÍ NGHIỆM ẢO</button>
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>BÀI GIẢNG KHAN</button>
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>KHO SÁCH MONKEY</button>
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>NXB GIÁO DỤC</button>
       </section>
 
       {/* DANH SÁCH HIỂN THỊ */}
       <section className="favorites-content">
         {loading ? (
-          <h2 style={{ textAlign: 'center' }}>⏳ Đang lục lại kho báu...</h2>
+          <h2 style={{ textAlign: 'center', padding: '50px' }}>⏳ Đang lục lại kho báu...</h2>
         ) : filteredFavorites.length > 0 ? (
           <div className="favorites-grid">
             {filteredFavorites.map((fav) => {
               const book = fav.book;
-              const thumbnail = book.image_link || book.imageLink || 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg';
+              if (!book) return null;
+              const thumbnail = book.imageLink || book.image_link || 'https://placehold.co/150x200';
 
               return (
-                <div className="favorite-card" key={fav.id}>
+                <div className="favorite-card" key={fav._id}>
                   <button 
                     className="btn-remove-fav" 
-                    onClick={() => handleRemoveFavorite(book.id)}
+                    onClick={() => handleRemoveFavorite(fav._id)}
                     title="Bỏ yêu thích"
                   >
                     💔
@@ -197,7 +159,7 @@ const FavoritesPage = () => {
                     
                     <button 
                       className="btn-read" 
-                      onClick={() => navigate(`/read/${book.id}`)}
+                      onClick={() => navigate(`/read/${book._id || book.id}`)}
                     >
                       📖 Đọc Tiếp
                     </button>
@@ -207,46 +169,19 @@ const FavoritesPage = () => {
             })}
           </div>
         ) : (
-          <div className="empty-favorites" style={{ textAlign: 'center', padding: '50px', background: 'white', borderRadius: '10px' }}>
-            <h2 style={{ color: '#555' }}>
-               {favorites.length === 0 ? "💔 Tủ sách yêu thích của bạn đang trống!" : "📭 Không tìm thấy sách khớp với bộ lọc!"}
-            </h2>
-            <p style={{ color: '#888' }}>
-               {favorites.length === 0 ? "Hãy dạo quanh Tủ Sách và thả tim cho những cuốn sách bạn tâm đắc nhé." : "Thử đổi từ khóa hoặc xóa bớt bộ lọc xem sao."}
-            </p>
+          <div className="empty-favorites" style={{ textAlign: 'center', padding: '50px' }}>
+            <h2>{favorites.length === 0 ? "💔 Kho báu đang trống!" : "📭 Không tìm thấy sách khớp!"}</h2>
             <Link to="/books" className="btn-go-books" style={{ textDecoration: 'none', display: 'inline-block', marginTop: '20px', padding: '10px 20px', background: '#007bff', color: 'white', borderRadius: '5px' }}>
                 Khám phá Tủ Sách ngay ➔
             </Link>
           </div>
         )}
       </section>
-      {/* --- CHÂN TRANG (FOOTER) --- */}
-      <footer className="site-footer">
-        <div className="footer-content">
-          <div className="footer-col">
-            <div className="footer-logo">
-              <span style={{ fontSize: '28px' }}>🎓</span> HUTECH DIGILIB
-            </div>
-            <p>🏢 SỞ GIÁO DỤC VÀ ĐÀO TẠO (Đồ án HUTECH)</p>
-            <p>🏠 Trường Thư viện số HUTECH DigiLib</p>
-          </div>
 
-          <div className="footer-col">
-            <p>📍 Xóm Suối Cạn, Xã Phú Thượng, Tỉnh Thái Nguyên</p>
-            <p>📞 0966827161</p>
-            <p>✉️ minhandeptrainhat@gmail.com</p>
-          </div>
-
-          <div className="footer-col links-col">
-            <p><span>ℹ️</span> Giới thiệu</p>
-            <p><span>❓</span> Hướng dẫn sử dụng</p>
-            <p><span>🛡️</span> Điều khoản sử dụng</p>
-            <p><span>💬</span> Câu hỏi thường gặp</p>
-            <p><span>👥</span> Liên hệ</p>
-          </div>
+      <footer className="site-footer" style={{marginTop: '50px'}}>
+        <div className="footer-content" style={{textAlign: 'center', color: '#666'}}>
+            <p>🎓 HUTECH DIGILIB - Chúc ní đọc sách vui vẻ!</p>
         </div>
-
-        
       </footer>
     </div>
   );

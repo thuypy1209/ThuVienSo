@@ -1,0 +1,82 @@
+.profile-content {
+  display: flex;
+  justify-content: center;
+  padding: 50px 20px;
+  background-color: #f4f7f6;
+  min-height: 90vh;
+}
+
+.profile-card {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  padding: 30px;
+  text-align: center;
+}
+
+.profile-avatar-big {
+  width: 120px;
+  height: 120px;
+  background: #e0e0e0;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  overflow: hidden;
+  border: 4px solid #007bff;
+}
+
+.profile-avatar-big img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-role {
+  background: #007bff;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.profile-details {
+  text-align: left;
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.info-item {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.info-item label {
+  font-weight: bold;
+  color: #666;
+}
+
+.profile-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-edit, .btn-logout-red {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-edit { background: #e3f2fd; color: #007bff; }
+.btn-logout-red { background: #ffebee; color: #d32f2f; }

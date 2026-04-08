@@ -3,46 +3,60 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import '../css/PostDetailPage.css';
 import '../css/HomePage.css';
+import axiosClient from '../api/axiosClient'; // ✅ Dùng hàng hiệu axiosClient
 
 const PostDetailPage = () => {
-  const { id } = useParams(); // Lấy ID bài viết từ trên thanh URL xuống
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dữ liệu bình luận ảo (Chờ Backend có bảng Comments thì gọi API thay vào)
+  // Lấy thông tin user từ localStorage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  // Dữ liệu bình luận (Ní giữ lại để demo, sau này có bảng Comments thì gọi API tương tự Posts)
   const [comments, setComments] = useState([
-    { id: 101, text: "Bạn thử thêm @CrossOrigin(\"*\") vào Controller xem sao nhé. Lỗi CORS thường do bảo mật của trình duyệt chặn đó.", author: "Nguyễn Minh T.", votes: 15, isBest: true, date: "18/03/2026" },
-    { id: 102, text: "Nếu dùng React thì xem lại đường dẫn lúc fetch() đã đúng port 8080 chưa nha bro.", author: "Trần Nhựt Việt", votes: 3, isBest: false, date: "18/03/2026" }
+    { id: 101, text: "Bạn thử dùng axiosClient thay cho fetch xem, nó tự đính kèm Token đó.", author: "Nguyễn Minh T.", votes: 15, isBest: true, date: "18/03/2026" },
+    { id: 102, text: "Hệ thống Node.js này chạy mượt quá ní ơi!", author: "Trần Nhựt Việt", votes: 3, isBest: false, date: "18/03/2026" }
   ]);
   const [newComment, setNewComment] = useState('');
 
-  // Tạm thời fetch toàn bộ bài viết rồi lọc ra bài có ID trùng khớp
+  // --- 1. GỌI API LẤY CHI TIẾT BÀI VIẾT (Dùng ID từ URL) ---
   useEffect(() => {
-    fetch('http://localhost:8080/api/posts/danhsach')
-      .then(res => res.json())
-      .then(data => {
-        const foundPost = data.find(p => p.id.toString() === id);
-        setPost(foundPost);
-      })
-      .catch(err => console.log("Lỗi tải bài viết: ", err));
+    const fetchPostDetail = async () => {
+      try {
+        setLoading(true);
+        // Gọi thẳng API: /posts/:id
+        const res = await axiosClient.get(`/posts/${id}`);
+        setPost(res.data || res);
+      } catch (err) {
+        console.error("Lỗi tải chi tiết bài viết: ", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPostDetail();
   }, [id]);
 
-  // Hàm xử lý khi gửi bình luận
+  // --- 2. HÀM XỬ LÝ GỬI BÌNH LUẬN ---
   const handleReply = () => {
     if (!newComment.trim()) return;
+    if (!user._id) return alert("Ní đăng nhập mới bình luận được nha!");
+
     const commentObj = {
       id: Math.random(),
       text: newComment,
-      author: "Ní Việt (Bạn)",
+      author: user.fullName || "Thành viên",
       votes: 0,
       isBest: false,
       date: new Date().toLocaleDateString('vi-VN')
     };
-    setComments([...comments, commentObj]); // Thêm comment vào danh sách
-    setNewComment(''); // Xóa trắng ô nhập
+    setComments([...comments, commentObj]); 
+    setNewComment(''); 
   };
 
-  if (!post) return <h2 style={{textAlign: 'center', marginTop: '50px'}}>⏳ Đang tải bài viết...</h2>;
+  if (loading) return <h2 style={{textAlign: 'center', marginTop: '50px'}}>⏳ Đang mở bài viết...</h2>;
+  if (!post) return <h2 style={{textAlign: 'center', marginTop: '50px'}}>❌ Không tìm thấy bài viết này!</h2>;
 
   return (
     <div className="post-detail-container">
@@ -58,14 +72,13 @@ const PostDetailPage = () => {
         </nav>
         <div className="header-actions">
           <span>🔔</span> <span>❤️</span>
-          <div className="user-profile" onClick={() => navigate('/')}>
-            <div className="user-avatar">👤</div><span>Ní Việt</span>
+          <div className="user-profile" onClick={() => navigate('/home')}>
+            <div className="user-avatar">👤</div><span>{user.fullName || "Thành viên"}</span>
           </div>
         </div>
       </header>
 
       <div className="post-detail-content">
-        {/* Nút quay lại */}
         <Link to="/forum" style={{ display: 'inline-block', marginBottom: '20px', textDecoration: 'none', color: '#004085', fontWeight: 'bold' }}>
           ⬅ Quay lại Diễn đàn
         </Link>
@@ -74,9 +87,12 @@ const PostDetailPage = () => {
         <div className="main-post-box">
           <h1>{post.title}</h1>
           <div className="post-meta-info">
-            Đăng bởi <strong>{post.authorName || 'Sinh viên HUTECH'}</strong> | 🕒 {new Date(post.createdAt).toLocaleDateString('vi-VN')}
+            {/* Backend dùng populate('author') nên ta lấy được fullName trực tiếp */}
+            Đăng bởi <strong>{post.author?.fullName || 'Sinh viên HUTECH'}</strong> | 🕒 {new Date(post.createdAt).toLocaleDateString('vi-VN')}
           </div>
-          <div className="post-body-text">{post.content}</div>
+          <div className="post-body-text" style={{ whiteSpace: 'pre-wrap' }}>
+            {post.content}
+          </div>
         </div>
 
         {/* KHU VỰC BÌNH LUẬN */}
@@ -85,15 +101,13 @@ const PostDetailPage = () => {
 
           {comments.map(cmt => (
             <div className={`answer-card ${cmt.isBest ? 'best-answer' : ''}`} key={cmt.id}>
-              {/* CỘT VOTE */}
               <div className="vote-col">
-                <button className="vote-btn up" title="Upvote">▲</button>
+                <button className="vote-btn up">▲</button>
                 <div className="vote-score">{cmt.votes}</div>
-                <button className="vote-btn down" title="Downvote">▼</button>
-                {cmt.isBest && <div className="best-badge" title="Câu trả lời hay nhất">⭐</div>}
+                <button className="vote-btn down">▼</button>
+                {cmt.isBest && <div className="best-badge">⭐</div>}
               </div>
               
-              {/* NỘI DUNG COMMENT */}
               <div className="answer-content">
                 <div className="answer-text">{cmt.text}</div>
                 <div className="answer-author">- {cmt.author} ({cmt.date})</div>
@@ -107,7 +121,7 @@ const PostDetailPage = () => {
           <h3>Câu trả lời của bạn</h3>
           <textarea 
             rows="5" 
-            placeholder="Viết câu trả lời hoặc gợi ý của bạn ở đây..."
+            placeholder="Chia sẻ giải pháp của bạn cho ní này..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
           ></textarea>

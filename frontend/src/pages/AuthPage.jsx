@@ -49,18 +49,22 @@ const AuthPage = () => {
 
       // Node.js trả về token, lưu vào localStorage
       if (data.token) {
-        localStorage.setItem('token', data.token);
+          localStorage.setItem('token', data.token);
+          // Lưu ý: Cất user vào localStorage phải chắc chắn data.user không rỗng
+          localStorage.setItem("username", data.user.username);
+          localStorage.setItem("role", data.user.role || "user");
+
+          localStorage.removeItem("user");
+          
+          setMessage("✅ Đăng nhập thành công! Đang chuyển hướng...");
+          setIsSuccess(true);
+          setTimeout(() => navigate('/home'), 1000);
+      } else {
+          throw new Error("Dữ liệu trả về từ Server bị thiếu!");
       }
-      localStorage.setItem("user", JSON.stringify(data.user));
 
       setMessage("✅ Đăng nhập thành công! Đang chuyển hướng...");
       setIsSuccess(true);
-
-      // Đợi 1 giây rồi bay sang trang chủ (đổi /home thành / nếu bạn map HomePage vào '/')
-      setTimeout(() => {
-          navigate('/home'); 
-      }, 1000);
-
     } catch (error) {
       // Bắt lỗi từ backend trả về
       setMessage("🚨 Lỗi: " + (error?.message || error || "Sai tên đăng nhập hoặc mật khẩu!"));
@@ -103,7 +107,13 @@ const AuthPage = () => {
       }
       setMessage(errorMsg);
       setIsSuccess(false);
+      // Thêm vào cuối hàm handleRegister:
+      setTimeout(() => {
+          setIsLoginMode(true);
+          setMessage("Đăng nhập bằng tài khoản vừa tạo!");
+      }, 2500);
     }
+    
   }
 
   const renderLoginForm = () => (

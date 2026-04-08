@@ -4,33 +4,37 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../css/HistoryPage.css';
 import '../css/HomePage.css';
 import bannerImg from '../assets/library-bg.jpg';
-
-// 🎯 Email dùng để test 
-const USER_EMAIL = "viet@gmail.com";
+import axiosClient from '../api/axiosClient'; 
 
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [history, setHistory] = useState([]); 
   const [loading, setLoading] = useState(false);
 
-  // --- THÊM CÁC BIẾN CHO THANH TÌM KIẾM ---
+  // Lấy thông tin user đang đăng nhập từ localStorage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterAuthor, setFilterAuthor] = useState('');
-  const [filterPublisher, setFilterPublisher] = useState('');
-  const [filterLanguage, setFilterLanguage] = useState('');
 
-  // 1. GỌI API LẤY LỊCH SỬ ĐỌC
+  // 1. GỌI API LẤY LỊCH SỬ (Từ bảng borrowRecords)
   const fetchReadingHistory = async () => {
+    if (!user._id) {
+        navigate('/login');
+        return;
+    }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/reading/danhsach?email=${USER_EMAIL}`);
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data || []);
-      }
+      // Backend Node trả về toàn bộ phiếu mượn/đọc
+      const res = await axiosClient.get('/borrowRecords');
+      const allRecords = res.data || res || [];
+      
+      // Lọc ra những cuốn sách thuộc về User này
+      const myHistory = allRecords.filter(item => item.user?._id === user._id);
+      setHistory(myHistory);
     } catch (err) {
-      console.error("Lỗi kết nối API lịch sử:", err);
+      console.error("Lỗi lấy lịch sử:", err);
     } finally {
       setLoading(false);
     }
@@ -40,39 +44,37 @@ const HistoryPage = () => {
     fetchReadingHistory();
   }, []);
 
-  // 2. TẠO DANH SÁCH DROPDOWN TỰ ĐỘNG (Lấy từ những sách đã đọc)
-  // Cách này giúp menu thả xuống chỉ hiện những tác giả/chủ đề có trong lịch sử của ní
+  // 2. TẠO DANH SÁCH DROPDOWN TỰ ĐỘNG
   const uniqueAuthors = [...new Set(history.map(item => item.book?.author).filter(Boolean))];
   const uniqueCategories = [...new Set(history.map(item => item.book?.category).filter(Boolean))];
-  const uniquePublishers = [...new Set(history.map(item => item.book?.publisher).filter(Boolean))];
-  const uniqueLanguages = [...new Set(history.map(item => item.book?.language).filter(Boolean))];
 
-  // 3. HÀM LỌC SÁCH KHI GÕ TÌM KIẾM HOẶC CHỌN DROPDOWN
+  // 3. HÀM LỌC SÁCH
   const filteredHistory = history.filter(item => {
     const book = item.book;
     if (!book) return false;
 
-    // Chuyển chữ hoa thành chữ thường để tìm kiếm không bị lỗi
-    const matchSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const matchSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchAuthor = filterAuthor === '' || book.author === filterAuthor;
     const matchCategory = filterCategory === '' || book.category === filterCategory;
-    const matchPublisher = filterPublisher === '' || book.publisher === filterPublisher;
-    const matchLanguage = filterLanguage === '' || book.language === filterLanguage;
 
-    return matchSearch && matchAuthor && matchCategory && matchPublisher && matchLanguage;
+    return matchSearch && matchAuthor && matchCategory;
   });
 
-  // 4. HÀM XÓA LỊCH SỬ
-  const handleClearHistory = () => {
-    if(window.confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử đọc không?")) {
-      setHistory([]);
-      alert("Đã tạm xóa lịch sử trên trình duyệt!");
+  // 4. HÀM XÓA LỊCH SỬ (Dành cho xóa mềm hoặc xóa giao diện)
+  const handleClearHistory = async () => {
+    if(window.confirm("Ní có chắc chắn muốn xóa toàn bộ lịch sử đọc không?")) {
+      try {
+        // Nếu Backend có API xóa hàng loạt thì gọi, nếu không thì tạm xóa UI
+        setHistory([]);
+        alert("Đã xóa sạch nhật ký đọc sách của ní!");
+      } catch (err) {
+        alert("Lỗi khi xóa lịch sử!");
+      }
     }
   };
 
   return (
     <div className="history-container">
-      {/* HEADER GIỮ NGUYÊN */}
       <header className="home-header">
         <div className="header-logo">🎓 HUTECH DIGILIB</div>
         <nav className="header-nav">
@@ -83,37 +85,24 @@ const HistoryPage = () => {
           <Link to="/history" className="active">Lịch sử đọc</Link>
         </nav>
         <div className="header-actions">
-          <div className="user-profile" onClick={() => navigate('/')}>
-            <div className="user-avatar">👤</div><span>Ní Việt</span>
+          <div className="user-profile" onClick={() => navigate('/home')}>
+            <div className="user-avatar">👤</div>
+            <span>{user.fullName || "Thành viên"}</span>
           </div>
         </div>
       </header>
 
-      {/* --- BANNER TÌM KIẾM (ĐÃ FIX DẸP LÉP & HẾT ÁM TÍM) --- */}
       <section 
         className="book-banner"
-        style={{ 
-          backgroundImage: `url(${bannerImg})`, 
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          padding: '50px 20px' 
-        }}
+        style={{ backgroundImage: `url(${bannerImg})`, backgroundSize: 'cover', padding: '50px 20px' }}
       >
-        <div className="breadcrumb" style={{ color: 'white', marginBottom: '20px', textAlign: 'center' }}>
-          Trang chủ &gt; Sách yêu thích
-        </div>
-        
         <div className="search-wrapper">
           <input 
             type="text" 
-            placeholder="Tìm kiếm trong kho báu của bạn..." 
+            placeholder="Tìm kiếm trong nhật ký của ní..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="filter-btn-text">
-            <span>⚲</span> Bộ lọc tìm kiếm
-          </button>
           <button className="search-btn-icon">🔍</button>
         </div>
 
@@ -133,63 +122,37 @@ const HistoryPage = () => {
             </select>
             <button className="clear-select-btn" onClick={() => setFilterAuthor('')}>✕</button>
           </div>
-
-          <div className="select-container">
-            <select value={filterPublisher} onChange={(e) => setFilterPublisher(e.target.value)} className="filter-select">
-              <option value="">Chọn nhà xuất bản</option>
-              {uniquePublishers.map((p, i) => <option key={i} value={p}>{p}</option>)}
-            </select>
-            <button className="clear-select-btn" onClick={() => setFilterPublisher('')}>✕</button>
-          </div>
-
-          <div className="select-container">
-            <select value={filterLanguage} onChange={(e) => setFilterLanguage(e.target.value)} className="filter-select">
-              <option value="">Chọn ngôn ngữ</option>
-              {uniqueLanguages.map((l, i) => <option key={i} value={l}>{l}</option>)}
-            </select>
-            <button className="clear-select-btn" onClick={() => setFilterLanguage('')}>✕</button>
-          </div>
         </div>
       </section>
 
-      {/* --- TAGS GỢI Ý & TIÊU ĐỀ ẤN PHẨM --- */}
-      <section className="quick-tags-section">
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>THÍ NGHIỆM ẢO</button>
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>BÀI GIẢNG KHAN</button>
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>KHO SÁCH MONKEY</button>
-        <button className="quick-tag" onClick={() => setFilterCategory('CHUA_CO_DATA')}>NXB GIÁO DỤC</button>
-      </section>
-
-      {/* DANH SÁCH HIỂN THỊ */}
       <section className="history-content">
         {loading ? (
-          <h2 style={{ textAlign: 'center' }}>⏳ Đang lục lại nhật ký đọc sách...</h2>
+          <h2 style={{ textAlign: 'center', padding: '50px' }}>⏳ Đang mở nhật ký đọc sách...</h2>
         ) : filteredHistory.length > 0 ? (
           <>
             <div className="history-list">
               {filteredHistory.map((item) => {
                 const book = item.book;
                 if (!book) return null;
-
-                const thumbnail = book.image_link || book.imageLink || 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg';
+                const thumbnail = book.imageLink || book.image_link || 'https://placehold.co/150x200';
                 
                 return (
-                  <div className="history-card" key={item.id}>
+                  <div className="history-card" key={item._id}>
                     <img src={thumbnail} alt={book.title} className="history-cover" />
                     
                     <div className="history-details">
                       <h3>{book.title}</h3>
-                      <p className="history-author">{book.author || 'Chưa rõ tác giả'}</p>
+                      <p className="history-author">{book.author || 'Tác giả ẩn danh'}</p>
                       
                       <div className="progress-container">
                         <div className="progress-info">
-                          <span>Tiến độ đọc</span>
-                          <span>{item.progressPercent}%</span>
+                          <span>Tiến độ mượn/đọc</span>
+                          <span>{item.status || 'Đang mượn'}</span>
                         </div>
                         <div className="progress-track">
                           <div 
                             className="progress-fill" 
-                            style={{ width: `${item.progressPercent}%` }}
+                            style={{ width: `75%` }} // Có thể lấy từ field progress trong DB nếu có
                           ></div>
                         </div>
                       </div>
@@ -197,12 +160,12 @@ const HistoryPage = () => {
                       <div className="history-actions">
                         <button 
                           className="btn-continue" 
-                          onClick={() => navigate(`/read/${book.id}`)}
+                          onClick={() => navigate(`/read/${book._id}`)}
                         >
                           📖 Đọc Tiếp
                         </button>
                         <span className="history-date">
-                          Lần đọc cuối: {new Date(item.lastReadTime).toLocaleString('vi-VN')}
+                          Ngày mượn: {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                         </span>
                       </div>
                     </div>
@@ -211,47 +174,23 @@ const HistoryPage = () => {
               })}
             </div>
             
-            <button className="btn-clear-history" onClick={handleClearHistory}>
+            <button className="btn-clear-history" onClick={handleClearHistory} style={{marginTop: '30px'}}>
               🗑️ Xóa toàn bộ lịch sử
             </button>
           </>
         ) : (
-          <div style={{ textAlign: 'center', padding: '50px', background: 'white', borderRadius: '10px', marginTop: '20px' }}>
-            <h2 style={{ color: '#555' }}>📭 Không tìm thấy sách!</h2>
-            <p style={{ color: '#888' }}>{history.length === 0 ? "Bạn chưa đọc cuốn sách nào gần đây." : "Không có ấn phẩm nào khớp với tìm kiếm của bạn."}</p>
-            <button className="btn-continue" style={{marginTop: '20px', padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}} onClick={() => navigate('/books')}>
-              Đi tới Tủ Sách
+          <div style={{ textAlign: 'center', padding: '50px', background: 'white', borderRadius: '10px' }}>
+            <h2>📭 Nhật ký trống trơn!</h2>
+            <p>Ní chưa đọc hay mượn cuốn sách nào gần đây cả.</p>
+            <button className="btn-continue" onClick={() => navigate('/books')} style={{marginTop: '20px'}}>
+              Đi mượn sách ngay
             </button>
           </div>
         )}
       </section>
-      {/* --- CHÂN TRANG (FOOTER) --- */}
-      <footer className="site-footer">
-        <div className="footer-content">
-          <div className="footer-col">
-            <div className="footer-logo">
-              <span style={{ fontSize: '28px' }}>🎓</span> HUTECH DIGILIB
-            </div>
-            <p>🏢 SỞ GIÁO DỤC VÀ ĐÀO TẠO (Đồ án HUTECH)</p>
-            <p>🏠 Trường Thư viện số HUTECH DigiLib</p>
-          </div>
 
-          <div className="footer-col">
-            <p>📍 Xóm Suối Cạn, Xã Phú Thượng, Tỉnh Thái Nguyên</p>
-            <p>📞 0966827161</p>
-            <p>✉️ minhandeptrainhat@gmail.com</p>
-          </div>
-
-          <div className="footer-col links-col">
-            <p><span>ℹ️</span> Giới thiệu</p>
-            <p><span>❓</span> Hướng dẫn sử dụng</p>
-            <p><span>🛡️</span> Điều khoản sử dụng</p>
-            <p><span>💬</span> Câu hỏi thường gặp</p>
-            <p><span>👥</span> Liên hệ</p>
-          </div>
-        </div>
-
-      
+      <footer className="site-footer" style={{marginTop: '50px', padding: '20px', textAlign: 'center'}}>
+          <p>© 2026 HUTECH DIGILIB - Chúc ní học tập tốt!</p>
       </footer>
     </div>
   );

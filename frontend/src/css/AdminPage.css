@@ -228,3 +228,16 @@
     outline: none;
     background-color: #fff !important;
 }
+.btn-back {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-back:hover {
+  background: #5a6268;
+}

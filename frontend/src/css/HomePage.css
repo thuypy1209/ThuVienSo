@@ -531,3 +531,54 @@
   display: inline-block !important;
   white-space: nowrap !important; /* Ép chữ "Trang chủ", "Tủ sách" dính liền nhau */
 }
+/* Container bọc ngoài cùng */
+.user-menu-container {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Cái bảng menu thả xuống */
+.user-dropdown-menu {
+  position: absolute;
+  top: 50px; /* Cách avatar một khoảng */
+  right: 0;
+  background-color: white;
+  width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  list-style: none;
+  padding: 8px 0;
+  z-index: 1000;
+  border: 1px solid #eee;
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Các dòng trong menu */
+.user-dropdown-menu li {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.user-dropdown-menu li:hover {
+  background-color: #f5f5f5;
+  color: #007bff;
+}
+
+/* Dòng đăng xuất cho màu đỏ tí cho nổi */
+.user-dropdown-menu li.logout-item {
+  color: #dc3545;
+}
+
+.user-dropdown-menu hr {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 4px 0;
+}
+
+/* Hiệu ứng hiện ra nhẹ nhàng */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
