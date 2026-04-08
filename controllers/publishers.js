@@ -1,43 +1,27 @@
+// File: controllers/publishers.js
 let PublisherModel = require('../schemas/publishers');
 
 module.exports = {
-    getAllPublishers: async (req, res) => {
-        try {
-            const publishers = await PublisherModel.find({});
-            res.status(200).json({ success: true, data: publishers });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+    GetAllPublishers: async function () { 
+        return await PublisherModel.find({}); 
+    },
+    GetPublisherById: async function (id) {
+        try { 
+            return await PublisherModel.findById(id); 
+        } catch (error) { 
+            return false; 
         }
     },
-
-    createPublisher: async (req, res) => {
-        try {
-            const newPublisher = new PublisherModel(req.body);
-            const savedPublisher = await newPublisher.save();
-            res.status(201).json({ success: true, message: "Tạo NXB thành công", data: savedPublisher });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
+    CreatePublisher: async function (data) {
+        let newPublisher = new PublisherModel(data);
+        await newPublisher.save();
+        return newPublisher;
     },
-
-    updatePublisher: async (req, res) => {
-        try {
-            const updatedPublisher = await PublisherModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedPublisher) return res.status(404).json({ success: false, message: "Không tìm thấy NXB" });
-            res.status(200).json({ success: true, message: "Cập nhật thành công", data: updatedPublisher });
-        } catch (error) {
-            res.status(400).json({ success: false, message: error.message });
-        }
+    
+    UpdatePublisher: async function (id, data) { 
+        return await PublisherModel.findByIdAndUpdate(id, data, { new: true }); 
     },
-
-    deletePublisher: async (req, res) => {
-        try {
-            const deletedPublisher = await PublisherModel.findByIdAndDelete(req.params.id);
-            if (!deletedPublisher) return res.status(404).json({ success: false, message: "Không tìm thấy để xóa" });
-            res.status(200).json({ success: true, message: "Xóa thành công" });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
+    DeletePublisher: async function (id) { 
+        return await PublisherModel.findByIdAndDelete(id); 
     }
 };
-
