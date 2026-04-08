@@ -1,27 +1,19 @@
-let Message = require('../schemas/messages');
+// File: controllers/messages.js
+let MessageModel = require('../schemas/messages');
 
 module.exports = {
-// Lấy toàn bộ lịch sử tin nhắn
-    getChatHistory: async (req, res) => {
-        try {
-            // Lấy tin nhắn và kéo theo tên của người gửi (chỉ lấy fullName và username cho nhẹ)
-            // .sort({ createdAt: 1 }) để xếp tin nhắn cũ ở trên, mới ở dưới giống y hệt Zalo/Messenger
-            const messages = await Message.find()
-                                          .populate('sender', 'fullName username')
-                                      .sort({ createdAt: 1 });
+    // 1. Lấy toàn bộ lịch sử tin nhắn (Xếp từ cũ đến mới chuẩn Zalo)
+    GetAll: async function () {
+        return await MessageModel.find()
+            .populate('sender', 'fullName username')
+            .sort({ createdAt: 1 });
+    },
 
-        res.status(200).json({
-            success: true,
-            message: "Lấy lịch sử chat thành công",
-            data: messages
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Lỗi Server khi lấy lịch sử chat",
-            error: error.message
-        });
+    // 2. Gửi tin nhắn mới (Tặng thêm cho bạn)
+    Create: async function (data) {
+        // data sẽ chứa { sender, content } hoặc các trường tương ứng trong schema của bạn
+        let newMessage = new MessageModel(data);
+        await newMessage.save();
+        return newMessage;
     }
-}
 };
