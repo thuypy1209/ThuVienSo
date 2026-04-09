@@ -10,7 +10,7 @@ const BookManagement = () => {
 
     const [form, setForm] = useState({
         title: '', author: '', category: '', description: '', publishedYear: '',
-        coverImage: '', fileUrl: ''
+        price: '', stock: '', coverImage: '', fileUrl: ''
     });
     const [coverFile, setCoverFile] = useState(null);
     const [ebookFile, setEbookFile] = useState(null);
@@ -26,7 +26,6 @@ const BookManagement = () => {
             setCategories(resCat.data.data || []);
         } catch (err) {
             console.error(err);
-            alert("Lỗi tải dữ liệu");
         } finally {
             setLoading(false);
         }
@@ -60,7 +59,6 @@ const BookManagement = () => {
         try {
             let coverUrl = form.coverImage;
             let ebookUrl = form.fileUrl;
-
             if (coverFile) coverUrl = await uploadFile(coverFile);
             if (ebookFile) ebookUrl = await uploadFile(ebookFile);
 
@@ -70,19 +68,21 @@ const BookManagement = () => {
                 category: form.category,
                 description: form.description,
                 publishedYear: Number(form.publishedYear),
+                price: Number(form.price),
+                stock: Number(form.stock),
                 coverImage: coverUrl,
                 fileUrl: ebookUrl
             };
 
             if (editId) {
                 await api.put(`/books/${editId}`, bookData);
-                alert("Cập nhật sách thành công!");
+                alert("✅ Cập nhật sách thành công!");
             } else {
                 await api.post('/books', bookData);
-                alert("Thêm sách thành công!");
+                alert("🎉 Thêm sách mới thành công!");
             }
 
-            setForm({ title: '', author: '', category: '', description: '', publishedYear: '', coverImage: '', fileUrl: '' });
+            setForm({ title: '', author: '', category: '', description: '', publishedYear: '', price: '', stock: '', coverImage: '', fileUrl: '' });
             setCoverFile(null);
             setEbookFile(null);
             setEditId(null);
@@ -100,22 +100,18 @@ const BookManagement = () => {
             category: book.category?._id || book.category,
             description: book.description || '',
             publishedYear: book.publishedYear || '',
+            price: book.price || '',
+            stock: book.stock || '',
             coverImage: book.coverImage || '',
             fileUrl: book.fileUrl || ''
         });
-        setCoverFile(null);
-        setEbookFile(null);
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Bạn chắc chắn muốn xóa sách này?")) return;
-        try {
-            await api.delete(`/books/${id}`);
-            alert("Xóa thành công!");
-            fetchData();
-        } catch (err) {
-            alert("Lỗi xóa sách");
-        }
+        await api.delete(`/books/${id}`);
+        alert("🗑️ Xóa thành công!");
+        fetchData();
     };
 
     return (
@@ -129,56 +125,43 @@ const BookManagement = () => {
                 <input name="author" placeholder="Tác giả" value={form.author} onChange={handleInput} required style={inputStyle} />
                 <select name="category" value={form.category} onChange={handleInput} required style={inputStyle}>
                     <option value="">Chọn danh mục</option>
-                    {categories.map(cat => (
-                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                    ))}
+                    {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                 </select>
                 <textarea name="description" placeholder="Mô tả" value={form.description} onChange={handleInput} style={inputStyle} />
                 <input name="publishedYear" type="number" placeholder="Năm xuất bản" value={form.publishedYear} onChange={handleInput} style={inputStyle} />
+                <input name="price" type="number" placeholder="Giá tiền (VNĐ)" value={form.price} onChange={handleInput} required style={inputStyle} />
+                <input name="stock" type="number" placeholder="Số lượng trong kho" value={form.stock} onChange={handleInput} required style={inputStyle} />
 
-                <label>Ảnh bìa (jpg/png):</label>
+                <label>Ảnh bìa:</label>
                 <input type="file" accept="image/*" onChange={e => setCoverFile(e.target.files[0])} style={inputStyle} />
-
-                <label>File sách (PDF/EPUB):</label>
-                <input type="file" accept=".pdf,.epub" onChange={e => setEbookFile(e.target.files[0])} style={inputStyle} />
+                <label>File PDF:</label>
+                <input type="file" accept=".pdf" onChange={e => setEbookFile(e.target.files[0])} style={inputStyle} />
 
                 <button type="submit" style={btnStyle}>
                     {editId ? 'Cập nhật sách' : 'Thêm sách mới'}
                 </button>
-                {editId && (
-                    <button type="button" onClick={() => { setEditId(null); setForm({}); }} style={{ ...btnStyle, backgroundColor: '#6c757d' }}>
-                        Hủy sửa
-                    </button>
-                )}
+                {editId && <button type="button" onClick={() => { setEditId(null); setForm({}); }} style={{ ...btnStyle, backgroundColor: '#6c757d' }}>Hủy</button>}
             </form>
 
-            <h3>Danh sách sách hiện có ({books.length})</h3>
+            <h3>Danh sách sách ({books.length})</h3>
             {loading ? <p>Đang tải...</p> : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr style={{ backgroundColor: '#f0f0f0' }}>
                             <th style={thStyle}>Ảnh</th>
                             <th style={thStyle}>Tên sách</th>
-                            <th style={thStyle}>Tác giả</th>
-                            <th style={thStyle}>Danh mục</th>
-                            <th style={thStyle}>Năm XB</th>
+                            <th style={thStyle}>Giá</th>
+                            <th style={thStyle}>Kho</th>
                             <th style={thStyle}>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         {books.map(book => (
                             <tr key={book._id}>
-                                <td>
-                                    <img 
-                                        src={book.coverImage ? `${BASE_URL}${book.coverImage}` : "https://via.placeholder.com/80"} 
-                                        alt="" 
-                                        width="60" 
-                                    />
-                                </td>
+                                <td><img src={book.coverImage ? `${BASE_URL}${book.coverImage}` : "https://via.placeholder.com/80"} width="60" alt="" /></td>
                                 <td>{book.title}</td>
-                                <td>{book.author}</td>
-                                <td>{book.category?.name || '—'}</td>
-                                <td>{book.publishedYear}</td>
+                                <td>{book.price?.toLocaleString('vi-VN')} ₫</td>
+                                <td>{book.stock}</td>
                                 <td>
                                     <button onClick={() => handleEdit(book)} style={smallBtn}>Sửa</button>
                                     <button onClick={() => handleDelete(book._id)} style={{ ...smallBtn, backgroundColor: '#dc3545' }}>Xóa</button>

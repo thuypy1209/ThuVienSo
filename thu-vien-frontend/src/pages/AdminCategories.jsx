@@ -20,7 +20,6 @@ const AdminCategories = () => {
         description: ''
     });
 
-    // ================= LOAD =================
     const fetchCategories = async () => {
         try {
             const res = await api.get('/categories');
@@ -34,7 +33,6 @@ const AdminCategories = () => {
         fetchCategories();
     }, []);
 
-    // ================= HANDLE =================
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -53,7 +51,7 @@ const AdminCategories = () => {
         });
         setShowModal(true);
     };
-
+    const previewLimit = 3;
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);

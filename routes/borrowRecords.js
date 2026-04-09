@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const recordController = require('../controllers/borrowRecords');
 
-router.post('/checkout-cart', recordController.checkoutCart);
+const {verifyToken} = require('../middlewares/authMiddleware');
 
-router.get('/my-history/:userId', recordController.getMyHistory);
+router.post('/checkout-cart', verifyToken, recordController.checkoutCart);
+
+router.get('/my-history/:userId', verifyToken, recordController.getMyHistory);
 
 module.exports = router;

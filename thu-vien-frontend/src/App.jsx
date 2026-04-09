@@ -16,6 +16,8 @@ import Bookshelf from './pages/Bookshelf';
 import AdminAddBook from './pages/AdminAddBook';
 import AdminCategories from './pages/AdminCategories';
 import AdminUsers from './pages/AdminUsers';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
         <Route path="/admin/add-book" element={<AdminAddBook />} />
         <Route path="/categories" element={<AdminCategories />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
         
         
       </Routes>
