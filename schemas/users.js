@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
-// === MÃ HÓA MẬT KHẨU (như thầy bạn) ===
 userSchema.pre('save', function () {
     if (this.isModified("password")) {
         let salt = bcrypt.genSaltSync(10);

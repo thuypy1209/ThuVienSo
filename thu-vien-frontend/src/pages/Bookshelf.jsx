@@ -7,8 +7,8 @@ const Bookshelf = () => {
     const navigate = useNavigate();
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [userRatings, setUserRatings] = useState({}); 
-    
+    const [userRatings, setUserRatings] = useState({});
+
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const userId = userInfo?._id || userInfo?.id || userInfo?.user?._id || userInfo?.data?._id;
 
@@ -29,7 +29,7 @@ const Bookshelf = () => {
     const handleWishlist = async (bookId) => {
         if (!userId) return alert("⚠️ Ní chưa đăng nhập!");
         try {
-            await api.post('/wishlists', { book: bookId, user: userId }); 
+            await api.post('/wishlists', { book: bookId, user: userId });
             alert("❤️ Đã thêm vào tủ sách yêu thích!");
         } catch (error) {
             alert(error.response?.data?.message || "❌ Lỗi Server!");
@@ -39,8 +39,12 @@ const Bookshelf = () => {
     const handleAddToCart = async (bookId) => {
         if (!userId) return alert("⚠️ Ní chưa đăng nhập!");
         try {
-            await api.post('/carts', { book: bookId, user: userId }); 
-            alert("🛒 Đã thêm vào giỏ sách chờ mượn!");
+            await api.post('/carts', {
+                user: userId,
+                book: bookId,
+                quantity: 1
+            });
+            alert("🛒 Đã thêm vào giỏ hàng!");
         } catch (error) {
             alert(error.response?.data?.message || "❌ Lỗi Server!");
         }
@@ -49,7 +53,7 @@ const Bookshelf = () => {
     const handleRate = async (bookId, rating) => {
         if (!userId) return alert("⚠️ Ní chưa đăng nhập!");
         try {
-            await api.post('/reviews', { book: bookId, rating, comment: "Đánh giá từ tủ sách", user: userId }); 
+            await api.post('/reviews', { book: bookId, rating, comment: "Đánh giá từ tủ sách", user: userId });
             setUserRatings(prev => ({ ...prev, [bookId]: rating }));
             alert(`⭐ Đã gửi đánh giá ${rating} sao cho cuốn sách này!`);
         } catch (error) {
@@ -75,24 +79,47 @@ const Bookshelf = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '30px' }}>
                         {books.map(book => {
                             const currentStars = userRatings[book._id] || book.averageRating || 0;
-                            
-                            // ĐÃ SỬA: Nối thêm localhost:3000 vào trước link ảnh để nó hiện lên
-                            const imageUrl = book.coverImage ? `http://localhost:3000${book.coverImage}` : "https://placehold.co/200x280?text=Sách+HUTECH";
+                            const imageUrl = book.coverImage 
+                                ? `http://localhost:3000${book.coverImage}` 
+                                : "https://placehold.co/200x280?text=Sách+HUTECH";
 
                             return (
                                 <div key={book._id} style={shelfCardStyle}>
                                     <div style={imgContainerStyle}>
                                         <img src={imageUrl} alt={book.title} style={bookImgStyle} />
                                     </div>
-
                                     <div style={{ padding: '15px' }}>
                                         <h4 style={bookTitleStyle} title={book.title}>{book.title}</h4>
-                                        <p style={{textAlign: 'center', color: '#666', fontSize: '14px', margin: '0 0 10px 0'}}>✍️ {book.author}</p>
-                                        
+                                        <p style={{textAlign: 'center', color: '#666', fontSize: '14px', margin: '4px 0'}}>
+                                            ✍️ {book.author}
+                                        </p>
+
+                                        {/* === GIÁ TIỀN + KHO === */}
+                                        <div style={{ textAlign: 'center', margin: '8px 0' }}>
+                                            <span style={{ 
+                                                fontSize: '18px', 
+                                                fontWeight: 'bold', 
+                                                color: '#e74c3c' 
+                                            }}>
+                                                {book.price 
+                                                    ? `${book.price.toLocaleString('vi-VN')} ₫` 
+                                                    : 'Chưa có giá'}
+                                            </span>
+                                            {book.stock !== undefined && (
+                                                <span style={{ 
+                                                    fontSize: '13px', 
+                                                    color: book.stock > 0 ? '#28a745' : '#e74c3c',
+                                                    marginLeft: '10px'
+                                                }}>
+                                                    | Còn {book.stock} cuốn
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'center', gap: '5px' }}>
                                             {[1, 2, 3, 4, 5].map(star => (
-                                                <span 
-                                                    key={star} 
+                                                <span
+                                                    key={star}
                                                     onClick={() => handleRate(book._id, star)}
                                                     style={{ cursor: 'pointer', fontSize: '24px', color: star <= currentStars ? '#f39c12' : '#ccc', transition: '0.2s' }}
                                                 >
@@ -101,14 +128,13 @@ const Bookshelf = () => {
                                             ))}
                                         </div>
 
-                                        {/* ĐÃ SỬA: Đưa nút Đọc Ngay xuống đây cho dễ bấm */}
                                         <button onClick={() => navigate(`/doc-sach/${book._id}`)} style={readNowBtnStyle}>
                                             📖 ĐỌC NGAY PDF
                                         </button>
 
                                         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                                             <button onClick={() => handleWishlist(book._id)} style={wishBtnStyle}>❤️ Yêu thích</button>
-                                            <button onClick={() => handleAddToCart(book._id)} style={cartBtnStyle}>🛒 Mượn sách</button>
+                                            <button onClick={() => handleAddToCart(book._id)} style={cartBtnStyle}>🛒 Thêm vào giỏ</button>
                                         </div>
                                     </div>
                                 </div>

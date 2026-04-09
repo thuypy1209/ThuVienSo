@@ -4,7 +4,7 @@ const categoryController = require('../controllers/categories');
 
 const { verifyToken, checkAdmin } = require('../middlewares/authMiddleware');
 
-router.get('/', categoryController.getAllCategories);
+router.get('/', verifyToken, categoryController.getAllCategories);
 
 router.post('/', verifyToken, checkAdmin, categoryController.createCategory);
 router.put('/:id', verifyToken, checkAdmin, categoryController.updateCategory);
