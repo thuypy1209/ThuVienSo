@@ -10,7 +10,7 @@ const getAllBooks = async (req, res) => {
 
         const books = await BookModel.find(filter)
             .populate('category', 'name description')
-            .populate('author', 'name'); // Nối bảng để lấy tên tác giả
+            .populate('author', 'name');
         res.status(200).json({ success: true, message: "Lấy danh sách sách thành công", data: books });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

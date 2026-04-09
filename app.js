@@ -22,7 +22,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/thuvienso')
     console.log("❌ Lỗi kết nối MongoDB. Bạn đã mở MongoDB Compass chưa?");
     console.log("Chi tiết lỗi:", err);
   });
-// -------------------------------------------------------------
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -42,11 +41,12 @@ var cartsRouter = require('./routes/carts');
 var messagesRouter = require('./routes/messages');
 
 var postsRouter = require('./routes/posts');
+var ordersRouter = require('./routes/orders');
+var paymentRouter = require('./routes/payment');
 
 
 var app = express();
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -62,7 +62,6 @@ app.use('/users', usersRouter);
 =======
 app.use(cors());
 
-// Đăng ký các đường dẫn (Routes)
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/categories', categoriesRouter);
@@ -80,6 +79,8 @@ app.use('/notifications', notificationsRouter);
 app.use('/carts', cartsRouter);
 app.use('/messages', messagesRouter);
 app.use('/posts', postsRouter);
+app.use('/orders', ordersRouter);
+app.use('/payment', paymentRouter);
 
 
 app.use(function(req, res, next) {

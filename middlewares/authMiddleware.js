@@ -6,7 +6,7 @@ const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) {
-        return res.status(401).json({ success: false, message: "Thiếu Token!" });
+        return res.status(401).json({ success: false, message: "Từ chối truy cập: Bạn chưa đăng nhập!" });
     }
     try {
         const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] });
